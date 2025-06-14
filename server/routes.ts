@@ -421,6 +421,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update website schedule
+  app.patch("/api/websites/:id/schedule", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { scanFrequency, nextScanAt } = req.body;
+      
+      const updatedWebsite = await storage.updateWebsite(id, {
+        scanFrequency,
+        nextScanAt: nextScanAt ? new Date(nextScanAt) : null,
+        updatedAt: new Date(),
+      });
+      
+      if (!updatedWebsite) {
+        return res.status(404).json({ message: "Website not found" });
+      }
+      
+      res.json(updatedWebsite);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update website schedule" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

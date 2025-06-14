@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScoreTrendsChart } from "@/components/score-trends-chart";
 import { ComparisonAnalysis } from "@/components/comparison-analysis";
+import { ScanScheduler } from "@/components/scan-scheduler";
 import { CsvExporter } from "@/lib/csv-exporter";
 import { Calendar, TrendingUp, TrendingDown, Minus, RefreshCw, Download } from "lucide-react";
 import type { Website, ScoreHistory, SeoAnalysis } from "@shared/schema";
@@ -163,10 +164,11 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
       {/* Historical Data */}
       <Tabs defaultValue="trends" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="trends">Score Trends</TabsTrigger>
           <TabsTrigger value="comparison">Comparison</TabsTrigger>
           <TabsTrigger value="analyses">Analysis History</TabsTrigger>
+          <TabsTrigger value="schedule">Auto-Scan</TabsTrigger>
         </TabsList>
         
         <TabsContent value="trends" className="space-y-4">
@@ -270,6 +272,10 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="schedule" className="space-y-4">
+          <ScanScheduler website={website} />
         </TabsContent>
       </Tabs>
     </div>

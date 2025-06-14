@@ -106,6 +106,14 @@ This is a comprehensive SEO analysis tool built with a modern full-stack archite
 
 ```
 Changelog:
+- June 14, 2025. Enhanced with comprehensive historical tracking system:
+  - PostgreSQL database integration with websites, analyses, and score history tables
+  - Real-time score trend visualization with Recharts line charts
+  - Comparative analysis between current and previous scans
+  - CSV export functionality for all historical data
+  - Automated scan scheduling (daily/weekly/monthly options)
+  - Website history dashboard with 4 tabs: Trends, Comparison, Analysis History, Auto-Scan
+  - Fixed database schema to handle decimal scores properly
 - June 14, 2025. Complete SEO analysis tool with full functionality:
   - Working Puppeteer web scraping with Chromium integration
   - Professional PDF report generation with jsPDF
