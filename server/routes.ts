@@ -420,7 +420,7 @@ class SeoAnalyzer {
     });
     
     // Generate content-specific issues and recommendations
-    const contentAnalysis = analysis.content;
+    const contentAnalysis = analysis.contentAnalysis;
     
     // Word count issues
     if (contentAnalysis.wordCount < 300) {
@@ -580,7 +580,7 @@ class SeoAnalyzer {
     const totalChecks = analysis.technicalChecks.length;
     
     const technicalScore = Math.round((passedChecks / totalChecks) * 100);
-    const contentScore = analysis.content.contentQualityScore || 50;
+    const contentScore = analysis.contentAnalysis.contentQualityScore || 50;
     const performanceScore = Math.max(50, Math.min(100, 100 - (analysis.performanceMetrics.loadTime - 1) * 20));
     const uxScore = Math.max(70, Math.min(100, 80 + analysis.uxAnalysis.internalLinks * 2));
     
@@ -600,7 +600,7 @@ class SeoAnalyzer {
       recommendations,
       technicalChecks: {
         ...analysis.technicalChecks,
-        contentAnalysis: analysis.content
+        contentAnalysis: analysis.contentAnalysis
       }
     };
   }
