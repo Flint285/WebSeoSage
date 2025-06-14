@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -21,11 +21,11 @@ export const seoAnalyses = pgTable("seo_analyses", {
   id: serial("id").primaryKey(),
   websiteId: integer("website_id").references(() => websites.id).notNull(),
   url: text("url").notNull(),
-  overallScore: integer("overall_score").notNull(),
-  technicalScore: integer("technical_score").notNull(),
-  contentScore: integer("content_score").notNull(),
-  performanceScore: integer("performance_score").notNull(),
-  uxScore: integer("ux_score").notNull(),
+  overallScore: real("overall_score").notNull(),
+  technicalScore: real("technical_score").notNull(),
+  contentScore: real("content_score").notNull(),
+  performanceScore: real("performance_score").notNull(),
+  uxScore: real("ux_score").notNull(),
   passedChecks: integer("passed_checks").notNull(),
   failedChecks: integer("failed_checks").notNull(),
   pageSpeed: text("page_speed").notNull(),
@@ -40,11 +40,11 @@ export const scoreHistory = pgTable("score_history", {
   id: serial("id").primaryKey(),
   websiteId: integer("website_id").references(() => websites.id).notNull(),
   analysisId: integer("analysis_id").references(() => seoAnalyses.id).notNull(),
-  overallScore: integer("overall_score").notNull(),
-  technicalScore: integer("technical_score").notNull(),
-  contentScore: integer("content_score").notNull(),
-  performanceScore: integer("performance_score").notNull(),
-  uxScore: integer("ux_score").notNull(),
+  overallScore: real("overall_score").notNull(),
+  technicalScore: real("technical_score").notNull(),
+  contentScore: real("content_score").notNull(),
+  performanceScore: real("performance_score").notNull(),
+  uxScore: real("ux_score").notNull(),
   date: timestamp("date").defaultNow().notNull(),
 });
 
