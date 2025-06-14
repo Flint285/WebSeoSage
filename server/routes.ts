@@ -281,10 +281,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate URL format
+      let parsedUrl;
       try {
-        new URL(url);
+        parsedUrl = new URL(url);
       } catch {
         return res.status(400).json({ message: "Invalid URL format" });
+      }
+      
+      // Get or create website record
+      let website = await storage.getWebsiteByUrl(url);
+      if (!website) {
+        const domain = parsedUrl.hostname;
+        website = await storage.createWebsite({
+          url,
+          domain,
+          title: null,
+          description: null,
+          isActive: true,
+          lastScanned: null,
+        });
       }
       
       // Check if analysis already exists for this URL (recent analysis)
@@ -298,7 +313,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Perform new analysis
       const analysisResult = await seoAnalyzer.analyzeWebsite(url);
-      const analysis = await storage.createSeoAnalysis(analysisResult);
+      
+      // Add website ID to analysis result
+      const analysisWithWebsiteId = {
+        ...analysisResult,
+        websiteId: website.id,
+      };
+      
+      const analysis = await storage.createSeoAnalysis(analysisWithWebsiteId);
+      
+      // Create score history entry
+      await storage.createScoreHistory({
+        websiteId: website.id,
+        analysisId: analysis.id,
+        overallScore: analysis.overallScore,
+        technicalScore: analysis.technicalScore,
+        contentScore: analysis.contentScore,
+        performanceScore: analysis.performanceScore,
+        uxScore: analysis.uxScore,
+      });
+      
+      // Update website last scanned timestamp
+      await storage.updateWebsite(website.id, { lastScanned: new Date() });
       
       res.json(analysis);
     } catch (error) {
@@ -330,6 +366,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(analyses);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch analyses" });
+    }
+  });
+
+  // Get all websites
+  app.get("/api/websites", async (req, res) => {
+    try {
+      const websites = await storage.getAllWebsites();
+      res.json(websites);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch websites" });
+    }
+  });
+
+  // Get website by ID
+  app.get("/api/websites/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const website = await storage.getWebsite(id);
+      
+      if (!website) {
+        return res.status(404).json({ message: "Website not found" });
+      }
+      
+      res.json(website);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch website" });
+    }
+  });
+
+  // Get website history
+  app.get("/api/websites/:id/history", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
+      
+      const history = await storage.getWebsiteHistory(id, limit);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch website history" });
+    }
+  });
+
+  // Get website analyses
+  app.get("/api/websites/:id/analyses", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      const analyses = await storage.getWebsiteAnalyses(id, limit);
+      res.json(analyses);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch website analyses" });
     }
   });
 
