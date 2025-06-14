@@ -19,6 +19,18 @@ export interface IStorage {
   getWebsiteAnalyses(websiteId: number, limit?: number): Promise<SeoAnalysis[]>;
   createScoreHistory(scoreHistory: InsertScoreHistory): Promise<ScoreHistory>;
   getAllWebsites(): Promise<Website[]>;
+  // Backlinks methods
+  getBacklinks(websiteId: number): Promise<Backlink[]>;
+  getBacklinksByDomain(websiteId: number, domain: string): Promise<Backlink[]>;
+  createBacklink(backlink: InsertBacklink): Promise<Backlink>;
+  updateBacklink(id: number, backlink: Partial<Backlink>): Promise<Backlink | undefined>;
+  getBacklinkStats(websiteId: number): Promise<{
+    totalBacklinks: number;
+    doFollowLinks: number;
+    noFollowLinks: number;
+    uniqueDomains: number;
+    averageDomainAuthority: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -181,6 +193,82 @@ export class DatabaseStorage implements IStorage {
       .values(insertScoreHistory)
       .returning();
     return scoreEntry;
+  }
+
+  // Backlinks methods implementation
+  async getBacklinks(websiteId: number): Promise<Backlink[]> {
+    return await db
+      .select()
+      .from(backlinks)
+      .where(and(eq(backlinks.websiteId, websiteId), eq(backlinks.isActive, true)))
+      .orderBy(desc(backlinks.lastSeen));
+  }
+
+  async getBacklinksByDomain(websiteId: number, domain: string): Promise<Backlink[]> {
+    return await db
+      .select()
+      .from(backlinks)
+      .where(and(
+        eq(backlinks.websiteId, websiteId),
+        eq(backlinks.isActive, true)
+      ))
+      .orderBy(desc(backlinks.lastSeen));
+  }
+
+  async createBacklink(insertBacklink: InsertBacklink): Promise<Backlink> {
+    const [backlink] = await db
+      .insert(backlinks)
+      .values(insertBacklink)
+      .returning();
+    return backlink;
+  }
+
+  async updateBacklink(id: number, updateData: Partial<Backlink>): Promise<Backlink | undefined> {
+    const [backlink] = await db
+      .update(backlinks)
+      .set({ ...updateData, lastSeen: new Date() })
+      .where(eq(backlinks.id, id))
+      .returning();
+    return backlink || undefined;
+  }
+
+  async getBacklinkStats(websiteId: number): Promise<{
+    totalBacklinks: number;
+    doFollowLinks: number;
+    noFollowLinks: number;
+    uniqueDomains: number;
+    averageDomainAuthority: number;
+  }> {
+    const backlinkData = await db
+      .select()
+      .from(backlinks)
+      .where(and(eq(backlinks.websiteId, websiteId), eq(backlinks.isActive, true)));
+
+    const totalBacklinks = backlinkData.length;
+    const doFollowLinks = backlinkData.filter(b => b.linkType === 'dofollow').length;
+    const noFollowLinks = backlinkData.filter(b => b.linkType === 'nofollow').length;
+    
+    // Get unique domains
+    const uniqueDomains = new Set(
+      backlinkData.map(b => new URL(b.sourceUrl).hostname)
+    ).size;
+
+    // Calculate average domain authority
+    const domainAuthorityValues = backlinkData
+      .filter(b => b.domainAuthority !== null)
+      .map(b => b.domainAuthority!);
+    
+    const averageDomainAuthority = domainAuthorityValues.length > 0
+      ? Math.round(domainAuthorityValues.reduce((sum, da) => sum + da, 0) / domainAuthorityValues.length)
+      : 0;
+
+    return {
+      totalBacklinks,
+      doFollowLinks,
+      noFollowLinks,
+      uniqueDomains,
+      averageDomainAuthority,
+    };
   }
 }
 

@@ -809,6 +809,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Backlinks endpoints
+  app.get("/api/websites/:id/backlinks", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const backlinks = await storage.getBacklinks(websiteId);
+      res.json(backlinks);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch backlinks" });
+    }
+  });
+
+  app.get("/api/websites/:id/backlinks/stats", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const stats = await storage.getBacklinkStats(websiteId);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch backlink statistics" });
+    }
+  });
+
+  app.post("/api/websites/:id/backlinks", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const backlinkData = {
+        ...req.body,
+        websiteId,
+      };
+      
+      const backlink = await storage.createBacklink(backlinkData);
+      res.json(backlink);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create backlink" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
