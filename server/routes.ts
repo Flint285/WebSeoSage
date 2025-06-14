@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertSeoAnalysisSchema, type SeoIssue, type SeoRecommendation, type TechnicalCheck } from "@shared/schema";
+import { serpTracker } from "./serp-tracker";
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
 
@@ -905,6 +906,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(ranking);
     } catch (error) {
       res.status(500).json({ message: "Failed to create keyword ranking" });
+    }
+  });
+
+  // SERP Tracking endpoints
+  app.post("/api/websites/:id/track-rankings", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      
+      const results = await serpTracker.trackKeywordsForWebsite(websiteId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error tracking website rankings:", error);
+      res.status(500).json({ message: "Failed to track website rankings" });
+    }
+  });
+
+  app.post("/api/keywords/:id/track", async (req, res) => {
+    try {
+      const keywordId = parseInt(req.params.id);
+      
+      const result = await serpTracker.trackSingleKeyword(keywordId);
+      res.json(result);
+    } catch (error) {
+      console.error("Error tracking keyword:", error);
+      res.status(500).json({ message: "Failed to track keyword ranking" });
     }
   });
 

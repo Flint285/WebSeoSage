@@ -19,6 +19,7 @@ import {
   Crown
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { RankTracker } from "./rank-tracker";
 import type { Website, Keyword } from "@shared/schema";
 
 interface KeywordsDashboardProps {
