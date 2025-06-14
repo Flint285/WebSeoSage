@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Shield, Calendar, Download, Share, ChartLine } from "lucide-react";
 import type { SeoAnalysis } from "@shared/schema";
+import { PdfGenerator } from "@/lib/pdf-generator";
 
 export default function Dashboard() {
   const [currentAnalysis, setCurrentAnalysis] = useState<SeoAnalysis | null>(null);
@@ -49,14 +50,28 @@ export default function Dashboard() {
     analyzeMutation.mutate(url);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!currentAnalysis) return;
     
-    // Simulate PDF export
-    toast({
-      title: "Export Started",
-      description: "Your SEO report is being generated and will download shortly.",
-    });
+    try {
+      toast({
+        title: "Generating Report",
+        description: "Creating your PDF report, please wait...",
+      });
+      
+      await PdfGenerator.generateSeoReport(currentAnalysis);
+      
+      toast({
+        title: "Report Downloaded",
+        description: "Your SEO report has been successfully downloaded.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate PDF report. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getScoreColor = (score: number) => {
