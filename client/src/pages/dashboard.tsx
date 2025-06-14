@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Shield, Calendar, Download, Share, ChartLine } from "lucide-react";
 import type { SeoAnalysis } from "@shared/schema";
 import { PdfGenerator } from "@/lib/pdf-generator";
+import { Link } from "wouter";
 
 export default function Dashboard() {
   const [currentAnalysis, setCurrentAnalysis] = useState<SeoAnalysis | null>(null);
@@ -139,8 +140,8 @@ export default function Dashboard() {
               </div>
             </div>
             <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-foreground hover:text-primary font-medium">Dashboard</a>
-              <a href="#" className="text-muted-foreground hover:text-primary font-medium">Reports</a>
+              <Link href="/" className="text-foreground hover:text-primary font-medium">Dashboard</Link>
+              <Link href="/history" className="text-muted-foreground hover:text-primary font-medium">History</Link>
               <a href="#" className="text-muted-foreground hover:text-primary font-medium">Keywords</a>
               <a href="#" className="text-muted-foreground hover:text-primary font-medium">Backlinks</a>
             </nav>
