@@ -15,7 +15,10 @@ export function MetricsTable({ analysis }: MetricsTableProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"technical" | "content" | "performance">("technical");
   
-  const technicalChecks = analysis.technicalChecks as TechnicalCheck[];
+  console.log('Analysis technicalChecks:', analysis.technicalChecks, 'Type:', typeof analysis.technicalChecks);
+  const technicalChecks = Array.isArray(analysis.technicalChecks) 
+    ? analysis.technicalChecks 
+    : [];
 
   const handleFixNow = (check: TechnicalCheck) => {
     const fixGuides: { [key: string]: string } = {
