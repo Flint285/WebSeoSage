@@ -22,6 +22,7 @@ interface ContentMetricsPanelProps {
 
 export function ContentMetricsPanel({ analysis }: ContentMetricsPanelProps) {
   // Parse the content analysis data from the analysis
+  console.log('ContentAnalysis data:', (analysis as any).contentAnalysis);
   const contentData = (analysis as any).contentAnalysis || {};
 
   const getReadabilityColor = (score: number) => {

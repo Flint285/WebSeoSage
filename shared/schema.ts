@@ -34,6 +34,7 @@ export const seoAnalyses = pgTable("seo_analyses", {
   issues: jsonb("issues").notNull(),
   recommendations: jsonb("recommendations").notNull(),
   technicalChecks: jsonb("technical_checks").notNull(),
+  contentAnalysis: jsonb("content_analysis"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
