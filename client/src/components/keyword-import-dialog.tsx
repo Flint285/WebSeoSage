@@ -32,7 +32,7 @@ export function KeywordImportDialog({ website }: KeywordImportDialogProps) {
 
   const createKeywordMutation = useMutation({
     mutationFn: async (keywordData: any) => {
-      return await apiRequest(`/api/websites/${website.id}/keywords`, "POST", keywordData);
+      return await apiRequest("POST", `/api/websites/${website.id}/keywords`, keywordData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'keywords'] });
@@ -92,7 +92,7 @@ export function KeywordImportDialog({ website }: KeywordImportDialogProps) {
         intent: parts[4] || null,
       };
       
-      return apiRequest(`/api/websites/${website.id}/keywords`, "POST", keywordData);
+      return apiRequest("POST", `/api/websites/${website.id}/keywords`, keywordData);
     });
 
     try {
@@ -130,7 +130,7 @@ export function KeywordImportDialog({ website }: KeywordImportDialogProps) {
 
     try {
       const promises = sampleKeywords.map(keyword => 
-        apiRequest(`/api/websites/${website.id}/keywords`, "POST", keyword)
+        apiRequest("POST", `/api/websites/${website.id}/keywords`, keyword)
       );
       
       await Promise.all(promises);

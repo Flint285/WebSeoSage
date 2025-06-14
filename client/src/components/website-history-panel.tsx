@@ -166,11 +166,12 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
       {/* Historical Data */}
       <Tabs defaultValue="trends" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="trends">Score Trends</TabsTrigger>
           <TabsTrigger value="comparison">Comparison</TabsTrigger>
           <TabsTrigger value="analyses">Analysis History</TabsTrigger>
           <TabsTrigger value="backlinks">Backlinks</TabsTrigger>
+          <TabsTrigger value="keywords">Keywords</TabsTrigger>
           <TabsTrigger value="schedule">Auto-Scan</TabsTrigger>
         </TabsList>
         
@@ -279,6 +280,10 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
         <TabsContent value="backlinks" className="space-y-4">
           <BacklinksDashboard website={website} />
+        </TabsContent>
+
+        <TabsContent value="keywords" className="space-y-4">
+          <KeywordsDashboard website={website} />
         </TabsContent>
         
         <TabsContent value="schedule" className="space-y-4">
