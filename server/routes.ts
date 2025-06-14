@@ -12,7 +12,16 @@ class SeoAnalyzer {
     try {
       browser = await puppeteer.launch({ 
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
+        args: [
+          '--no-sandbox', 
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu'
+        ]
       });
       const page = await browser.newPage();
       
@@ -39,7 +48,7 @@ class SeoAnalyzer {
       
     } catch (error) {
       if (browser) await browser.close();
-      throw new Error(`Failed to analyze website: ${error.message}`);
+      throw new Error(`Failed to analyze website: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   
@@ -294,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(analysis);
     } catch (error) {
       console.error("Analysis error:", error);
-      res.status(500).json({ message: error.message || "Failed to analyze website" });
+      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to analyze website" });
     }
   });
 
