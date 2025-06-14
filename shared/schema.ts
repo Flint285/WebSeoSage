@@ -38,6 +38,22 @@ export const seoAnalyses = pgTable("seo_analyses", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Backlinks table for tracking incoming links
+export const backlinks = pgTable("backlinks", {
+  id: serial("id").primaryKey(),
+  websiteId: integer("website_id").references(() => websites.id).notNull(),
+  sourceUrl: text("source_url").notNull(),
+  targetUrl: text("target_url").notNull(),
+  anchorText: text("anchor_text"),
+  linkType: text("link_type").notNull(), // 'dofollow', 'nofollow', 'sponsored', 'ugc'
+  domainAuthority: integer("domain_authority"),
+  pageAuthority: integer("page_authority"),
+  isActive: boolean("is_active").default(true).notNull(),
+  firstSeen: timestamp("first_seen").defaultNow().notNull(),
+  lastSeen: timestamp("last_seen").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Score history for tracking changes over time
 export const scoreHistory = pgTable("score_history", {
   id: serial("id").primaryKey(),
@@ -55,6 +71,7 @@ export const scoreHistory = pgTable("score_history", {
 export const websitesRelations = relations(websites, ({ many }) => ({
   analyses: many(seoAnalyses),
   scoreHistory: many(scoreHistory),
+  backlinks: many(backlinks),
 }));
 
 // SEO Analysis relations
@@ -81,6 +98,14 @@ export const scoreHistoryRelations = relations(scoreHistory, ({ one }) => ({
   }),
 }));
 
+// Backlinks relations
+export const backlinksRelations = relations(backlinks, ({ one }) => ({
+  website: one(websites, {
+    fields: [backlinks.websiteId],
+    references: [websites.id],
+  }),
+}));
+
 // Website schemas
 export const insertWebsiteSchema = createInsertSchema(websites).omit({
   id: true,
@@ -98,6 +123,13 @@ export const insertScoreHistorySchema = createInsertSchema(scoreHistory).omit({
   date: true,
 });
 
+export const insertBacklinkSchema = createInsertSchema(backlinks).omit({
+  id: true,
+  createdAt: true,
+  firstSeen: true,
+  lastSeen: true,
+});
+
 // Types
 export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
@@ -105,6 +137,8 @@ export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
 export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
 export type ScoreHistory = typeof scoreHistory.$inferSelect;
 export type InsertScoreHistory = z.infer<typeof insertScoreHistorySchema>;
+export type Backlink = typeof backlinks.$inferSelect;
+export type InsertBacklink = z.infer<typeof insertBacklinkSchema>;
 
 // SEO Issue Schema
 export const seoIssueSchema = z.object({

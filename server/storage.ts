@@ -1,4 +1,4 @@
-import { websites, seoAnalyses, scoreHistory, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory } from "@shared/schema";
+import { websites, seoAnalyses, scoreHistory, backlinks, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
