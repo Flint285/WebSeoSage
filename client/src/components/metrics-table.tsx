@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CheckCircle, XCircle, Shield, Smartphone, Tags, Heading, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { SeoAnalysis, TechnicalCheck } from "@shared/schema";
+import { ContentMetricsPanel } from "./content-metrics-panel";
 
 interface MetricsTableProps {
   analysis: SeoAnalysis;
@@ -164,9 +165,7 @@ export function MetricsTable({ analysis }: MetricsTableProps) {
         )}
         
         {activeTab === "content" && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Content analysis metrics will be displayed here.</p>
-          </div>
+          <ContentMetricsPanel analysis={analysis} />
         )}
         
         {activeTab === "performance" && (
