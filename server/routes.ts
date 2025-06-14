@@ -598,10 +598,8 @@ class SeoAnalyzer {
       pageSpeed: `${analysis.performanceMetrics.loadTime.toFixed(1)}s`,
       issues,
       recommendations,
-      technicalChecks: {
-        ...analysis.technicalChecks,
-        contentAnalysis: analysis.contentAnalysis
-      }
+      technicalChecks: analysis.technicalChecks,
+      contentAnalysis: analysis.contentAnalysis
     };
   }
   

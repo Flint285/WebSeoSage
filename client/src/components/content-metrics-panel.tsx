@@ -22,9 +22,7 @@ interface ContentMetricsPanelProps {
 
 export function ContentMetricsPanel({ analysis }: ContentMetricsPanelProps) {
   // Parse the content analysis data from the analysis
-  const contentData = typeof analysis.technicalChecks === 'object' && analysis.technicalChecks !== null
-    ? (analysis.technicalChecks as any).contentAnalysis || {}
-    : {};
+  const contentData = (analysis as any).contentAnalysis || {};
 
   const getReadabilityColor = (score: number) => {
     if (score >= 70) return "text-green-600";
