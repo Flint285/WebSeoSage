@@ -9,6 +9,7 @@ import { ComparisonAnalysis } from "@/components/comparison-analysis";
 import { ScanScheduler } from "@/components/scan-scheduler";
 import { BacklinksDashboard } from "@/components/backlinks-dashboard";
 import { KeywordsDashboard } from "@/components/keywords-dashboard";
+import { CompetitorAnalysisDashboard } from "@/components/competitor-analysis-dashboard";
 import { CsvExporter } from "@/lib/csv-exporter";
 import { Calendar, TrendingUp, TrendingDown, Minus, RefreshCw, Download } from "lucide-react";
 import type { Website, ScoreHistory, SeoAnalysis } from "@shared/schema";
@@ -166,12 +167,13 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
       {/* Historical Data */}
       <Tabs defaultValue="trends" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="trends">Score Trends</TabsTrigger>
           <TabsTrigger value="comparison">Comparison</TabsTrigger>
           <TabsTrigger value="analyses">Analysis History</TabsTrigger>
           <TabsTrigger value="backlinks">Backlinks</TabsTrigger>
           <TabsTrigger value="keywords">Keywords</TabsTrigger>
+          <TabsTrigger value="competitors">Competitors</TabsTrigger>
           <TabsTrigger value="schedule">Auto-Scan</TabsTrigger>
         </TabsList>
         
@@ -284,6 +286,10 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
         <TabsContent value="keywords" className="space-y-4">
           <KeywordsDashboard website={website} />
+        </TabsContent>
+
+        <TabsContent value="competitors" className="space-y-4">
+          <CompetitorAnalysisDashboard website={website} />
         </TabsContent>
         
         <TabsContent value="schedule" className="space-y-4">

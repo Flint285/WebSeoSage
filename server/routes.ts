@@ -934,6 +934,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Competitor analysis endpoints
+  app.get("/api/websites/:id/competitors", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const competitors = await storage.getCompetitors(websiteId);
+      res.json(competitors);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch competitors" });
+    }
+  });
+
+  app.post("/api/websites/:id/competitors", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const competitorData = {
+        ...req.body,
+        websiteId,
+      };
+      
+      const competitor = await storage.createCompetitor(competitorData);
+      res.json(competitor);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create competitor" });
+    }
+  });
+
+  app.get("/api/websites/:id/competitor-analysis", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const analysis = await storage.analyzeCompetitorGaps(websiteId);
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to analyze competitors" });
+    }
+  });
+
+  app.get("/api/competitors/:id/keywords", async (req, res) => {
+    try {
+      const competitorId = parseInt(req.params.id);
+      const keywords = await storage.getCompetitorKeywords(competitorId);
+      res.json(keywords);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch competitor keywords" });
+    }
+  });
+
+  app.post("/api/competitors/:id/keywords", async (req, res) => {
+    try {
+      const competitorId = parseInt(req.params.id);
+      const keywordData = {
+        ...req.body,
+        competitorId,
+      };
+      
+      const keyword = await storage.createCompetitorKeyword(keywordData);
+      res.json(keyword);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create competitor keyword" });
+    }
+  });
+
+  app.delete("/api/competitors/:id", async (req, res) => {
+    try {
+      const competitorId = parseInt(req.params.id);
+      const success = await storage.deleteCompetitor(competitorId);
+      res.json({ success });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete competitor" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
