@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Lightbulb } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { SeoAnalysis, SeoIssue, SeoRecommendation } from "@shared/schema";
 
 interface IssuesRecommendationsProps {
@@ -9,8 +10,23 @@ interface IssuesRecommendationsProps {
 }
 
 export function IssuesRecommendations({ analysis }: IssuesRecommendationsProps) {
+  const { toast } = useToast();
   const issues = analysis.issues as SeoIssue[];
   const recommendations = analysis.recommendations as SeoRecommendation[];
+
+  const handleViewAllIssues = () => {
+    toast({
+      title: "All Issues",
+      description: "Expanded view with detailed technical checks available in the metrics table below.",
+    });
+  };
+
+  const handleGuideClick = (recommendation: SeoRecommendation) => {
+    toast({
+      title: `${recommendation.title} Guide`,
+      description: "Detailed implementation guides available with Pro subscription. This would open a step-by-step tutorial.",
+    });
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -97,7 +113,11 @@ export function IssuesRecommendations({ analysis }: IssuesRecommendationsProps) 
             ))}
             
             {issues.length > 3 && (
-              <Button variant="ghost" className="w-full text-center text-primary hover:bg-blue-50">
+              <Button 
+                variant="ghost" 
+                className="w-full text-center text-primary hover:bg-blue-50"
+                onClick={handleViewAllIssues}
+              >
                 View All Issues ({issues.length})
               </Button>
             )}
@@ -136,7 +156,12 @@ export function IssuesRecommendations({ analysis }: IssuesRecommendationsProps) 
                             style={{ color: rec.priority === 1 ? '#00A651' : rec.priority === 2 ? '#0066CC' : '#9333EA' }}>
                         Estimated +{rec.estimatedScoreIncrease} SEO score
                       </span>
-                      <Button size="sm" variant="outline" className="text-xs px-3 py-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs px-3 py-1"
+                        onClick={() => handleGuideClick(rec)}
+                      >
                         Guide
                       </Button>
                     </div>

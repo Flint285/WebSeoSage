@@ -74,6 +74,45 @@ export default function Dashboard() {
     }
   };
 
+  const handleShareReport = async () => {
+    if (!currentAnalysis) return;
+    
+    try {
+      const shareUrl = `${window.location.origin}/?url=${encodeURIComponent(currentAnalysis.url)}`;
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "Link Copied",
+        description: "Share link has been copied to clipboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Share Failed",
+        description: "Could not copy share link. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleScheduleMonitoring = () => {
+    toast({
+      title: "Monitoring Setup",
+      description: "Schedule monitoring feature coming soon. Upgrade to Pro for automated SEO tracking.",
+    });
+  };
+
+  const handleViewActionPlan = () => {
+    if (!currentAnalysis) return;
+    
+    const element = document.getElementById('issues-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      toast({
+        title: "Action Plan",
+        description: "Scroll down to see your critical issues and recommendations.",
+      });
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-secondary";
     if (score >= 60) return "text-warning";
@@ -189,7 +228,12 @@ export default function Dashboard() {
                   <p className="text-blue-100 text-sm mb-4">
                     Fix {currentAnalysis.failedChecks} critical issues to boost your score significantly
                   </p>
-                  <Button variant="secondary" size="sm" className="bg-white text-primary hover:bg-gray-100">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="bg-white text-primary hover:bg-gray-100"
+                    onClick={handleViewActionPlan}
+                  >
                     View Action Plan
                   </Button>
                 </div>
@@ -200,7 +244,9 @@ export default function Dashboard() {
             <CategoryBreakdown analysis={currentAnalysis} />
 
             {/* Issues and Recommendations */}
-            <IssuesRecommendations analysis={currentAnalysis} />
+            <div id="issues-section">
+              <IssuesRecommendations analysis={currentAnalysis} />
+            </div>
 
             {/* Metrics Table */}
             <MetricsTable analysis={currentAnalysis} />
@@ -217,11 +263,11 @@ export default function Dashboard() {
                     <Download className="h-4 w-4 mr-2" />
                     Download PDF Report
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={handleShareReport}>
                     <Share className="h-4 w-4 mr-2" />
                     Share Report
                   </Button>
-                  <Button className="bg-secondary text-secondary-foreground hover:bg-green-600">
+                  <Button className="bg-secondary text-secondary-foreground hover:bg-green-600" onClick={handleScheduleMonitoring}>
                     <Calendar className="h-4 w-4 mr-2" />
                     Schedule Monitoring
                   </Button>
