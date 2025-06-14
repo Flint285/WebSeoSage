@@ -845,6 +845,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Keywords endpoints
+  app.get("/api/websites/:id/keywords", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const keywords = await storage.getKeywords(websiteId);
+      res.json(keywords);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch keywords" });
+    }
+  });
+
+  app.get("/api/websites/:id/keywords/stats", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const stats = await storage.getKeywordStats(websiteId);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch keyword statistics" });
+    }
+  });
+
+  app.post("/api/websites/:id/keywords", async (req, res) => {
+    try {
+      const websiteId = parseInt(req.params.id);
+      const keywordData = {
+        ...req.body,
+        websiteId,
+      };
+      
+      const keyword = await storage.createKeyword(keywordData);
+      res.json(keyword);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create keyword" });
+    }
+  });
+
+  app.get("/api/keywords/:id/rankings", async (req, res) => {
+    try {
+      const keywordId = parseInt(req.params.id);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
+      
+      const rankings = await storage.getKeywordRankings(keywordId, limit);
+      res.json(rankings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch keyword rankings" });
+    }
+  });
+
+  app.post("/api/keywords/:id/rankings", async (req, res) => {
+    try {
+      const keywordId = parseInt(req.params.id);
+      const rankingData = {
+        ...req.body,
+        keywordId,
+      };
+      
+      const ranking = await storage.createKeywordRanking(rankingData);
+      res.json(ranking);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create keyword ranking" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

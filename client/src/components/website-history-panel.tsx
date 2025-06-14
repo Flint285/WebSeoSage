@@ -8,6 +8,7 @@ import { ScoreTrendsChart } from "@/components/score-trends-chart";
 import { ComparisonAnalysis } from "@/components/comparison-analysis";
 import { ScanScheduler } from "@/components/scan-scheduler";
 import { BacklinksDashboard } from "@/components/backlinks-dashboard";
+import { KeywordsDashboard } from "@/components/keywords-dashboard";
 import { CsvExporter } from "@/lib/csv-exporter";
 import { Calendar, TrendingUp, TrendingDown, Minus, RefreshCw, Download } from "lucide-react";
 import type { Website, ScoreHistory, SeoAnalysis } from "@shared/schema";
