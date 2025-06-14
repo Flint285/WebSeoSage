@@ -286,6 +286,15 @@ export class DatabaseStorage implements IStorage {
 
   // Keywords methods implementation
   async getKeywords(websiteId: number): Promise<Keyword[]> {
+    if (websiteId === 0) {
+      // Return all keywords for global queries
+      return await db
+        .select()
+        .from(keywords)
+        .where(eq(keywords.isActive, true))
+        .orderBy(desc(keywords.createdAt));
+    }
+    
     return await db
       .select()
       .from(keywords)

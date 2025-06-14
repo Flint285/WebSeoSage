@@ -35,7 +35,7 @@ interface KeywordStats {
 }
 
 export function KeywordsDashboard({ website }: KeywordsDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "keywords" | "opportunities">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "keywords" | "tracking" | "opportunities">("overview");
 
   const { data: keywords = [], isLoading: keywordsLoading } = useQuery<Keyword[]>({
     queryKey: ['/api/websites', website.id, 'keywords'],
@@ -222,9 +222,10 @@ export function KeywordsDashboard({ website }: KeywordsDashboardProps) {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="keywords">All Keywords ({keywords.length})</TabsTrigger>
+              <TabsTrigger value="tracking">Rank Tracking</TabsTrigger>
               <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
             </TabsList>
 
@@ -338,6 +339,10 @@ export function KeywordsDashboard({ website }: KeywordsDashboardProps) {
                   </TableBody>
                 </Table>
               </div>
+            </TabsContent>
+
+            <TabsContent value="tracking" className="mt-6">
+              <RankTracker website={website} />
             </TabsContent>
 
             <TabsContent value="opportunities" className="mt-6">

@@ -48,8 +48,9 @@ export function RankTracker({ website }: RankTrackerProps) {
 
   // Track all keywords mutation
   const trackAllMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("POST", `/api/websites/${website.id}/track-rankings`);
+    mutationFn: async (): Promise<TrackingResult> => {
+      const response = await apiRequest("POST", `/api/websites/${website.id}/track-rankings`);
+      return await response.json();
     },
     onSuccess: (data: TrackingResult) => {
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'keywords'] });
@@ -76,7 +77,8 @@ export function RankTracker({ website }: RankTrackerProps) {
   // Track single keyword mutation
   const trackSingleMutation = useMutation({
     mutationFn: async (keywordId: number) => {
-      return await apiRequest("POST", `/api/keywords/${keywordId}/track`);
+      const response = await apiRequest("POST", `/api/keywords/${keywordId}/track`);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'keywords'] });

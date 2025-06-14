@@ -209,10 +209,9 @@ export class SerpTracker {
     error?: string;
   }> {
     try {
-      // Get keyword and website info
-      const keyword = await storage.getKeywords(0).then(keywords => 
-        keywords.find(k => k.id === keywordId)
-      );
+      // Get keyword and website info from all keywords
+      const allKeywords = await storage.getKeywords(0);
+      const keyword = allKeywords.find(k => k.id === keywordId);
       
       if (!keyword) {
         return {
