@@ -42,6 +42,17 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(seoAnalyses)
       .where(eq(seoAnalyses.id, id));
+    
+    if (analysis) {
+      // Convert technicalChecks back to array if it's an object with numeric keys
+      if (analysis.technicalChecks && typeof analysis.technicalChecks === 'object' && !Array.isArray(analysis.technicalChecks)) {
+        analysis.technicalChecks = Object.keys(analysis.technicalChecks)
+          .filter(key => !isNaN(Number(key)))
+          .map(key => (analysis.technicalChecks as any)[key])
+          .filter(Boolean);
+      }
+    }
+    
     return analysis || undefined;
   }
 
@@ -52,6 +63,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(seoAnalyses.url, url))
       .orderBy(desc(seoAnalyses.createdAt))
       .limit(1);
+    
+    if (analysis) {
+      // Convert technicalChecks back to array if it's an object with numeric keys
+      if (analysis.technicalChecks && typeof analysis.technicalChecks === 'object' && !Array.isArray(analysis.technicalChecks)) {
+        analysis.technicalChecks = Object.keys(analysis.technicalChecks)
+          .filter(key => !isNaN(Number(key)))
+          .map(key => (analysis.technicalChecks as any)[key])
+          .filter(Boolean);
+      }
+    }
+    
     return analysis || undefined;
   }
 
@@ -64,10 +86,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllSeoAnalyses(): Promise<SeoAnalysis[]> {
-    return await db
+    const analyses = await db
       .select()
       .from(seoAnalyses)
       .orderBy(desc(seoAnalyses.createdAt));
+    
+    return analyses.map(analysis => {
+      // Convert technicalChecks back to array if it's an object with numeric keys
+      if (analysis.technicalChecks && typeof analysis.technicalChecks === 'object' && !Array.isArray(analysis.technicalChecks)) {
+        analysis.technicalChecks = Object.keys(analysis.technicalChecks)
+          .filter(key => !isNaN(Number(key)))
+          .map(key => (analysis.technicalChecks as any)[key])
+          .filter(Boolean);
+      }
+      return analysis;
+    });
   }
 
   // Website management methods
@@ -123,12 +156,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWebsiteAnalyses(websiteId: number, limit = 10): Promise<SeoAnalysis[]> {
-    return await db
+    const analyses = await db
       .select()
       .from(seoAnalyses)
       .where(eq(seoAnalyses.websiteId, websiteId))
       .orderBy(desc(seoAnalyses.createdAt))
       .limit(limit);
+    
+    return analyses.map(analysis => {
+      // Convert technicalChecks back to array if it's an object with numeric keys
+      if (analysis.technicalChecks && typeof analysis.technicalChecks === 'object' && !Array.isArray(analysis.technicalChecks)) {
+        analysis.technicalChecks = Object.keys(analysis.technicalChecks)
+          .filter(key => !isNaN(Number(key)))
+          .map(key => (analysis.technicalChecks as any)[key])
+          .filter(Boolean);
+      }
+      return analysis;
+    });
   }
 
   async createScoreHistory(insertScoreHistory: InsertScoreHistory): Promise<ScoreHistory> {
