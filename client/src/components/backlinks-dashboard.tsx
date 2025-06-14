@@ -17,6 +17,7 @@ import {
   Plus
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { BacklinkImportDialog } from "./backlink-import-dialog";
 import type { Website, Backlink } from "@shared/schema";
 
 interface BacklinksDashboardProps {
@@ -95,10 +96,10 @@ export function BacklinksDashboard({ website }: BacklinksDashboardProps) {
       domain,
       count: links.length,
       averageDA: Math.round(
-        links.filter(l => l.domainAuthority).reduce((sum, l) => sum + (l.domainAuthority || 0), 0) / 
-        links.filter(l => l.domainAuthority).length || 0
+        links.filter((l: Backlink) => l.domainAuthority).reduce((sum: number, l: Backlink) => sum + (l.domainAuthority || 0), 0) / 
+        Math.max(links.filter((l: Backlink) => l.domainAuthority).length, 1)
       ),
-      doFollowCount: links.filter(l => l.linkType === 'dofollow').length
+      doFollowCount: links.filter((l: Backlink) => l.linkType === 'dofollow').length
     }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
@@ -195,10 +196,7 @@ export function BacklinksDashboard({ website }: BacklinksDashboardProps) {
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Backlink
-              </Button>
+              <BacklinkImportDialog website={website} />
             </div>
           </div>
         </CardHeader>
