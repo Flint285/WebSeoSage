@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle, XCircle, Shield, Smartphone, Tags, Heading, Map } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { SeoAnalysis, TechnicalCheck } from "@shared/schema";
 
 interface MetricsTableProps {
@@ -11,9 +12,26 @@ interface MetricsTableProps {
 }
 
 export function MetricsTable({ analysis }: MetricsTableProps) {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"technical" | "content" | "performance">("technical");
   
   const technicalChecks = analysis.technicalChecks as TechnicalCheck[];
+
+  const handleFixNow = (check: TechnicalCheck) => {
+    const fixGuides: { [key: string]: string } = {
+      'meta-description': 'Add a meta description tag in your HTML head section: <meta name="description" content="Your 150-160 character description">',
+      'h1-tag': 'Add an H1 tag to your page: <h1>Your Main Page Heading</h1>',
+      'title-tag': 'Add a title tag in your HTML head: <title>Your Page Title (50-60 characters)</title>',
+      'https-security': 'Install an SSL certificate through your hosting provider or use services like Let\'s Encrypt for free SSL.',
+    };
+    
+    const guide = fixGuides[check.id] || 'Check our documentation for detailed implementation steps.';
+    
+    toast({
+      title: `Fix ${check.name}`,
+      description: guide,
+    });
+  };
 
   const getIconComponent = (iconName: string) => {
     const iconMap: { [key: string]: any } = {
@@ -127,7 +145,12 @@ export function MetricsTable({ analysis }: MetricsTableProps) {
                         {check.status === "passed" ? (
                           <span className="text-secondary text-sm">✓ Complete</span>
                         ) : (
-                          <Button variant="link" size="sm" className="text-primary p-0 h-auto">
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="text-primary p-0 h-auto"
+                            onClick={() => handleFixNow(check)}
+                          >
                             Fix Now
                           </Button>
                         )}
