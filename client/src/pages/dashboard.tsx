@@ -246,13 +246,35 @@ export default function Dashboard() {
             {/* Category Breakdown */}
             <CategoryBreakdown analysis={currentAnalysis} />
 
-            {/* Issues and Recommendations */}
-            <div id="issues-section">
-              <IssuesRecommendations analysis={currentAnalysis} />
-            </div>
-
-            {/* Metrics Table */}
-            <MetricsTable analysis={currentAnalysis} />
+            {/* Detailed Analysis Tabs */}
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="content">Content Analysis</TabsTrigger>
+                <TabsTrigger value="technical">Technical Checks</TabsTrigger>
+                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-6">
+                <div id="issues-section">
+                  <IssuesRecommendations analysis={currentAnalysis} />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="content" className="space-y-6">
+                <ContentMetricsPanel analysis={currentAnalysis} />
+              </TabsContent>
+              
+              <TabsContent value="technical" className="space-y-6">
+                <MetricsTable analysis={currentAnalysis} />
+              </TabsContent>
+              
+              <TabsContent value="recommendations" className="space-y-6">
+                <div id="recommendations-section">
+                  <IssuesRecommendations analysis={currentAnalysis} />
+                </div>
+              </TabsContent>
+            </Tabs>
 
             {/* Export Section */}
             <Card className="p-8">
