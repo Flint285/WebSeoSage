@@ -12,6 +12,8 @@ export const websites = pgTable("websites", {
   description: text("description"),
   isActive: boolean("is_active").default(true).notNull(),
   lastScanned: timestamp("last_scanned"),
+  scanFrequency: varchar("scan_frequency", { length: 20 }).default("manual"), // manual, daily, weekly, monthly
+  nextScanAt: timestamp("next_scan_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

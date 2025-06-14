@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScoreTrendsChart } from "@/components/score-trends-chart";
-import { Calendar, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ComparisonAnalysis } from "@/components/comparison-analysis";
+import { CsvExporter } from "@/lib/csv-exporter";
+import { Calendar, TrendingUp, TrendingDown, Minus, RefreshCw, Download } from "lucide-react";
 import type { Website, ScoreHistory, SeoAnalysis } from "@shared/schema";
 
 interface WebsiteHistoryPanelProps {
@@ -161,8 +163,9 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
 
       {/* Historical Data */}
       <Tabs defaultValue="trends" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="trends">Score Trends</TabsTrigger>
+          <TabsTrigger value="comparison">Comparison</TabsTrigger>
           <TabsTrigger value="analyses">Analysis History</TabsTrigger>
         </TabsList>
         
@@ -182,10 +185,51 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
           )}
         </TabsContent>
         
+        <TabsContent value="comparison" className="space-y-4">
+          {analyses.length >= 2 ? (
+            <ComparisonAnalysis 
+              currentAnalysis={analyses[0]} 
+              previousAnalysis={analyses[1]} 
+            />
+          ) : (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <RefreshCw className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Need More Data</h3>
+                <p className="text-muted-foreground">
+                  At least 2 analyses are required to show comparison data.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        
         <TabsContent value="analyses" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg text-foreground">Recent Analyses</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg text-foreground">Recent Analyses</CardTitle>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => CsvExporter.exportScoreHistory(history, website)}
+                    disabled={history.length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Scores
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => CsvExporter.exportAnalysisData(analyses, website)}
+                    disabled={analyses.length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Data
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {analyses.length > 0 ? (
@@ -207,6 +251,14 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
                         <div className="text-sm text-muted-foreground">
                           {analysis.passedChecks} passed, {analysis.failedChecks} issues
                         </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => CsvExporter.exportDetailedAnalysis(analysis)}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Export
+                        </Button>
                       </div>
                     </div>
                   ))}
