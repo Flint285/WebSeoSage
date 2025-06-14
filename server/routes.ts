@@ -122,21 +122,264 @@ class SeoAnalyzer {
   }
   
   private analyzeContent($: cheerio.CheerioAPI) {
-    const wordCount = $('body').text().trim().split(/\s+/).length;
+    const bodyText = $('body').text().trim();
+    const words = bodyText.split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+    
+    // Heading structure analysis
     const headings = {
       h1: $('h1').length,
       h2: $('h2').length,
       h3: $('h3').length,
+      h4: $('h4').length,
+      h5: $('h5').length,
+      h6: $('h6').length,
     };
+    
+    // Image analysis
     const images = $('img').length;
     const imagesWithoutAlt = $('img:not([alt])').length;
+    const imagesWithEmptyAlt = $('img[alt=""]').length;
+    
+    // Text analysis
+    const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const paragraphs = $('p').length;
+    const avgWordsPerSentence = sentences.length > 0 ? wordCount / sentences.length : 0;
+    const avgSentencesPerParagraph = paragraphs > 0 ? sentences.length / paragraphs : 0;
+    
+    // Readability metrics (simplified Flesch Reading Ease approximation)
+    const avgSyllablesPerWord = this.estimateAverageSyllables(words);
+    const fleschScore = this.calculateFleschScore(sentences.length, wordCount, avgSyllablesPerWord * wordCount);
+    
+    // Content structure analysis
+    const listItems = $('li').length;
+    const orderedLists = $('ol').length;
+    const unorderedLists = $('ul').length;
+    const tables = $('table').length;
+    const blockquotes = $('blockquote').length;
+    
+    // Link analysis
+    const internalLinks = $('a[href^="/"], a[href^="#"]').length;
+    const externalLinks = $('a[href^="http"]').length;
+    const totalLinks = $('a[href]').length;
+    
+    // Media analysis
+    const videos = $('video, iframe[src*="youtube"], iframe[src*="vimeo"]').length;
+    const audioElements = $('audio').length;
+    
+    // Meta content analysis
+    const metaDescription = $('meta[name="description"]').attr('content') || '';
+    const metaKeywords = $('meta[name="keywords"]').attr('content') || '';
+    
+    // Title and heading content analysis
+    const title = $('title').text();
+    const h1Text = $('h1').map((i, el) => $(el).text()).get();
+    const h2Text = $('h2').map((i, el) => $(el).text()).get();
+    
+    // Content density and quality indicators
+    const codeBlocks = $('pre, code').length;
+    const strongElements = $('strong, b').length;
+    const emphasisElements = $('em, i').length;
+    
+    // Calculate content quality score
+    const contentQualityScore = this.calculateContentQualityScore({
+      wordCount,
+      headingStructure: headings,
+      readabilityScore: fleschScore,
+      imageOptimization: images > 0 ? (images - imagesWithoutAlt) / images * 100 : 100,
+      linkBalance: totalLinks > 0 ? (internalLinks / totalLinks) * 100 : 50,
+      structuralElements: listItems + tables + blockquotes
+    });
     
     return {
+      // Basic metrics
       wordCount,
+      sentenceCount: sentences.length,
+      paragraphCount: paragraphs,
+      
+      // Structure analysis
       headings,
-      images,
-      imagesWithoutAlt
+      headingHierarchy: this.analyzeHeadingHierarchy($),
+      
+      // Readability
+      avgWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
+      avgSentencesPerParagraph: Math.round(avgSentencesPerParagraph * 10) / 10,
+      fleschReadingEase: Math.round(fleschScore),
+      readabilityLevel: this.getReadabilityLevel(fleschScore),
+      
+      // Media and images
+      images: {
+        total: images,
+        withoutAlt: imagesWithoutAlt,
+        withEmptyAlt: imagesWithEmptyAlt,
+        optimizationScore: images > 0 ? Math.round((images - imagesWithoutAlt) / images * 100) : 100
+      },
+      
+      // Links
+      links: {
+        internal: internalLinks,
+        external: externalLinks,
+        total: totalLinks,
+        internalRatio: totalLinks > 0 ? Math.round((internalLinks / totalLinks) * 100) : 0
+      },
+      
+      // Content structure
+      structure: {
+        lists: { ordered: orderedLists, unordered: unorderedLists, items: listItems },
+        tables,
+        blockquotes,
+        codeBlocks,
+        videos,
+        audioElements
+      },
+      
+      // Content emphasis
+      emphasis: {
+        strongElements,
+        emphasisElements,
+        emphasisRatio: wordCount > 0 ? Math.round(((strongElements + emphasisElements) / wordCount) * 1000) / 10 : 0
+      },
+      
+      // Meta content
+      meta: {
+        title: { text: title, length: title.length },
+        description: { text: metaDescription, length: metaDescription.length },
+        keywords: metaKeywords
+      },
+      
+      // Quality scores
+      contentQualityScore: Math.round(contentQualityScore),
+      
+      // Top headings for context
+      topHeadings: {
+        h1: h1Text.slice(0, 3),
+        h2: h2Text.slice(0, 5)
+      }
     };
+  }
+  
+  private estimateAverageSyllables(words: string[]): number {
+    if (words.length === 0) return 1;
+    
+    const totalSyllables = words.reduce((sum, word) => {
+      // Simple syllable estimation: count vowel groups
+      const syllableCount = (word.toLowerCase().match(/[aeiouy]+/g) || []).length;
+      return sum + Math.max(1, syllableCount); // Minimum 1 syllable per word
+    }, 0);
+    
+    return totalSyllables / words.length;
+  }
+  
+  private calculateFleschScore(sentences: number, words: number, syllables: number): number {
+    if (sentences === 0 || words === 0) return 0;
+    
+    const avgSentenceLength = words / sentences;
+    const avgSyllablesPerWord = syllables / words;
+    
+    return 206.835 - (1.015 * avgSentenceLength) - (84.6 * avgSyllablesPerWord);
+  }
+  
+  private getReadabilityLevel(fleschScore: number): string {
+    if (fleschScore >= 90) return "Very Easy";
+    if (fleschScore >= 80) return "Easy";
+    if (fleschScore >= 70) return "Fairly Easy";
+    if (fleschScore >= 60) return "Standard";
+    if (fleschScore >= 50) return "Fairly Difficult";
+    if (fleschScore >= 30) return "Difficult";
+    return "Very Difficult";
+  }
+  
+  private analyzeHeadingHierarchy($: cheerio.CheerioAPI): { isProper: boolean, issues: string[] } {
+    const issues: string[] = [];
+    const h1Count = $('h1').length;
+    
+    if (h1Count === 0) {
+      issues.push("Missing H1 tag");
+    } else if (h1Count > 1) {
+      issues.push("Multiple H1 tags found");
+    }
+    
+    // Check for heading hierarchy skips
+    const headingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    let lastLevel = 0;
+    
+    $('h1, h2, h3, h4, h5, h6').each((i, el) => {
+      const currentLevel = parseInt(el.tagName.charAt(1));
+      if (currentLevel > lastLevel + 1) {
+        issues.push(`Heading hierarchy skip: ${el.tagName.toUpperCase()} follows H${lastLevel}`);
+      }
+      lastLevel = currentLevel;
+    });
+    
+    return {
+      isProper: issues.length === 0,
+      issues
+    };
+  }
+  
+  private calculateContentQualityScore(metrics: {
+    wordCount: number;
+    headingStructure: any;
+    readabilityScore: number;
+    imageOptimization: number;
+    linkBalance: number;
+    structuralElements: number;
+  }): number {
+    let score = 0;
+    
+    // Word count scoring (optimal range: 300-2000 words)
+    if (metrics.wordCount >= 300 && metrics.wordCount <= 2000) {
+      score += 25;
+    } else if (metrics.wordCount >= 150) {
+      score += 15;
+    } else {
+      score += 5;
+    }
+    
+    // Heading structure scoring
+    const hasH1 = metrics.headingStructure.h1 === 1;
+    const hasH2 = metrics.headingStructure.h2 > 0;
+    if (hasH1 && hasH2) {
+      score += 20;
+    } else if (hasH1) {
+      score += 10;
+    }
+    
+    // Readability scoring (optimal range: 60-80)
+    if (metrics.readabilityScore >= 60 && metrics.readabilityScore <= 80) {
+      score += 20;
+    } else if (metrics.readabilityScore >= 40 && metrics.readabilityScore <= 90) {
+      score += 15;
+    } else {
+      score += 5;
+    }
+    
+    // Image optimization scoring
+    if (metrics.imageOptimization >= 90) {
+      score += 15;
+    } else if (metrics.imageOptimization >= 70) {
+      score += 10;
+    } else {
+      score += 5;
+    }
+    
+    // Link balance scoring (optimal internal link ratio: 60-80%)
+    if (metrics.linkBalance >= 60 && metrics.linkBalance <= 80) {
+      score += 10;
+    } else if (metrics.linkBalance >= 40) {
+      score += 7;
+    } else {
+      score += 3;
+    }
+    
+    // Structural elements scoring
+    if (metrics.structuralElements >= 3) {
+      score += 10;
+    } else if (metrics.structuralElements >= 1) {
+      score += 5;
+    }
+    
+    return Math.min(100, score);
   }
   
   private analyzeUserExperience($: cheerio.CheerioAPI, page: any) {
@@ -175,6 +418,128 @@ class SeoAnalyzer {
         });
       }
     });
+    
+    // Generate content-specific issues and recommendations
+    const contentAnalysis = analysis.content;
+    
+    // Word count issues
+    if (contentAnalysis.wordCount < 300) {
+      issues.push({
+        id: 'content-length',
+        title: 'Content Too Short',
+        description: `Your page has only ${contentAnalysis.wordCount} words. Pages with 300+ words typically perform better in search results.`,
+        priority: 'medium',
+        impact: 'Affects search engine ranking and user engagement',
+        category: 'content'
+      });
+      
+      recommendations.push({
+        id: 'increase-content-length',
+        title: 'Expand Content Length',
+        description: 'Add more valuable, relevant content to reach at least 300 words. Focus on addressing user questions and providing comprehensive information.',
+        estimatedScoreIncrease: 12,
+        priority: 2,
+        category: 'content'
+      });
+    }
+    
+    // Readability issues
+    if (contentAnalysis.fleschReadingEase < 50) {
+      issues.push({
+        id: 'readability-difficult',
+        title: 'Content Difficult to Read',
+        description: `Readability score is ${contentAnalysis.fleschReadingEase} (${contentAnalysis.readabilityLevel}). Content may be too complex for average readers.`,
+        priority: 'medium',
+        impact: 'Reduces user engagement and time on page',
+        category: 'content'
+      });
+      
+      recommendations.push({
+        id: 'improve-readability',
+        title: 'Simplify Content for Better Readability',
+        description: 'Use shorter sentences, simpler words, and break up long paragraphs. Aim for a Flesch score of 60-70 for optimal readability.',
+        estimatedScoreIncrease: 10,
+        priority: 2,
+        category: 'content'
+      });
+    }
+    
+    // Image optimization issues
+    if (contentAnalysis.images && contentAnalysis.images.withoutAlt > 0) {
+      issues.push({
+        id: 'missing-alt-text',
+        title: 'Images Missing Alt Text',
+        description: `${contentAnalysis.images.withoutAlt} out of ${contentAnalysis.images.total} images are missing alt text, affecting accessibility and SEO.`,
+        priority: 'high',
+        impact: 'Reduces accessibility and search engine understanding of image content',
+        category: 'content'
+      });
+      
+      recommendations.push({
+        id: 'add-alt-text',
+        title: 'Add Alt Text to All Images',
+        description: 'Provide descriptive alt text for all images to improve accessibility and help search engines understand image content.',
+        estimatedScoreIncrease: 8,
+        priority: 1,
+        category: 'content'
+      });
+    }
+    
+    // Heading hierarchy issues
+    if (contentAnalysis.headingHierarchy && !contentAnalysis.headingHierarchy.isProper) {
+      issues.push({
+        id: 'heading-hierarchy',
+        title: 'Improper Heading Structure',
+        description: contentAnalysis.headingHierarchy.issues.join('; '),
+        priority: 'medium',
+        impact: 'Affects content organization and search engine understanding',
+        category: 'content'
+      });
+      
+      recommendations.push({
+        id: 'fix-heading-hierarchy',
+        title: 'Fix Heading Structure',
+        description: 'Ensure proper heading hierarchy (H1 → H2 → H3) without skipping levels. Use only one H1 per page.',
+        estimatedScoreIncrease: 7,
+        priority: 2,
+        category: 'content'
+      });
+    }
+    
+    // Meta description issues
+    if (!contentAnalysis.meta?.description?.text || contentAnalysis.meta.description.length < 120) {
+      issues.push({
+        id: 'meta-description',
+        title: 'Meta Description Missing or Too Short',
+        description: contentAnalysis.meta?.description?.text 
+          ? `Meta description is only ${contentAnalysis.meta.description.length} characters. Optimal length is 120-160 characters.`
+          : 'No meta description found. This affects how your page appears in search results.',
+        priority: 'high',
+        impact: 'Directly affects click-through rates from search results',
+        category: 'content'
+      });
+      
+      recommendations.push({
+        id: 'optimize-meta-description',
+        title: 'Add or Optimize Meta Description',
+        description: 'Write a compelling meta description between 120-160 characters that summarizes your page content and encourages clicks.',
+        estimatedScoreIncrease: 15,
+        priority: 1,
+        category: 'content'
+      });
+    }
+    
+    // Internal linking issues
+    if (contentAnalysis.links && contentAnalysis.links.internalRatio < 40) {
+      recommendations.push({
+        id: 'improve-internal-linking',
+        title: 'Add More Internal Links',
+        description: 'Include more internal links to help users navigate your site and distribute page authority. Aim for 60-80% internal links.',
+        estimatedScoreIncrease: 6,
+        priority: 3,
+        category: 'content'
+      });
+    }
     
     // Performance issues
     if (analysis.performanceMetrics.loadTime > 2) {
@@ -215,7 +580,7 @@ class SeoAnalyzer {
     const totalChecks = analysis.technicalChecks.length;
     
     const technicalScore = Math.round((passedChecks / totalChecks) * 100);
-    const contentScore = Math.max(50, Math.min(100, 60 + (analysis.contentAnalysis.wordCount / 20)));
+    const contentScore = analysis.content.contentQualityScore || 50;
     const performanceScore = Math.max(50, Math.min(100, 100 - (analysis.performanceMetrics.loadTime - 1) * 20));
     const uxScore = Math.max(70, Math.min(100, 80 + analysis.uxAnalysis.internalLinks * 2));
     
@@ -233,7 +598,10 @@ class SeoAnalyzer {
       pageSpeed: `${analysis.performanceMetrics.loadTime.toFixed(1)}s`,
       issues,
       recommendations,
-      technicalChecks: analysis.technicalChecks
+      technicalChecks: {
+        ...analysis.technicalChecks,
+        contentAnalysis: analysis.content
+      }
     };
   }
   
