@@ -1,4 +1,4 @@
-import { websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking } from "@shared/schema";
+import { websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, competitors, competitorKeywords, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking, type Competitor, type InsertCompetitor, type CompetitorKeyword, type InsertCompetitorKeyword } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -43,6 +43,36 @@ export interface IStorage {
     topRankingKeywords: number;
     improvingKeywords: number;
     decliningKeywords: number;
+  }>;
+  // Competitor analysis methods
+  getCompetitors(websiteId: number): Promise<Competitor[]>;
+  getCompetitor(id: number): Promise<Competitor | undefined>;
+  createCompetitor(competitor: InsertCompetitor): Promise<Competitor>;
+  updateCompetitor(id: number, competitor: Partial<Competitor>): Promise<Competitor | undefined>;
+  deleteCompetitor(id: number): Promise<boolean>;
+  getCompetitorKeywords(competitorId: number): Promise<CompetitorKeyword[]>;
+  createCompetitorKeyword(competitorKeyword: InsertCompetitorKeyword): Promise<CompetitorKeyword>;
+  analyzeCompetitorGaps(websiteId: number): Promise<{
+    keywordOpportunities: Array<{
+      keyword: string;
+      competitorPosition: number;
+      ourPosition: number | null;
+      searchVolume: number;
+      difficulty: number;
+      competitor: string;
+    }>;
+    backlinksGaps: Array<{
+      domain: string;
+      competitorBacklinks: number;
+      ourBacklinks: number;
+      opportunity: string;
+    }>;
+    overallAnalysis: {
+      totalCompetitors: number;
+      avgCompetitorScore: number;
+      ourAdvantages: string[];
+      competitorAdvantages: string[];
+    };
   }>;
 }
 
@@ -381,6 +411,159 @@ export class DatabaseStorage implements IStorage {
       topRankingKeywords,
       improvingKeywords,
       decliningKeywords,
+    };
+  }
+
+  // Competitor analysis methods implementation
+  async getCompetitors(websiteId: number): Promise<Competitor[]> {
+    return await db
+      .select()
+      .from(competitors)
+      .where(and(eq(competitors.websiteId, websiteId), eq(competitors.isActive, true)))
+      .orderBy(desc(competitors.createdAt));
+  }
+
+  async getCompetitor(id: number): Promise<Competitor | undefined> {
+    const [competitor] = await db
+      .select()
+      .from(competitors)
+      .where(eq(competitors.id, id));
+    return competitor || undefined;
+  }
+
+  async createCompetitor(insertCompetitor: InsertCompetitor): Promise<Competitor> {
+    const [competitor] = await db
+      .insert(competitors)
+      .values(insertCompetitor)
+      .returning();
+    return competitor;
+  }
+
+  async updateCompetitor(id: number, updateData: Partial<Competitor>): Promise<Competitor | undefined> {
+    const [competitor] = await db
+      .update(competitors)
+      .set(updateData)
+      .where(eq(competitors.id, id))
+      .returning();
+    return competitor || undefined;
+  }
+
+  async deleteCompetitor(id: number): Promise<boolean> {
+    const result = await db
+      .update(competitors)
+      .set({ isActive: false })
+      .where(eq(competitors.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async getCompetitorKeywords(competitorId: number): Promise<CompetitorKeyword[]> {
+    return await db
+      .select()
+      .from(competitorKeywords)
+      .where(eq(competitorKeywords.competitorId, competitorId))
+      .orderBy(desc(competitorKeywords.lastChecked));
+  }
+
+  async createCompetitorKeyword(insertCompetitorKeyword: InsertCompetitorKeyword): Promise<CompetitorKeyword> {
+    const [competitorKeyword] = await db
+      .insert(competitorKeywords)
+      .values(insertCompetitorKeyword)
+      .returning();
+    return competitorKeyword;
+  }
+
+  async analyzeCompetitorGaps(websiteId: number): Promise<{
+    keywordOpportunities: Array<{
+      keyword: string;
+      competitorPosition: number;
+      ourPosition: number | null;
+      searchVolume: number;
+      difficulty: number;
+      competitor: string;
+    }>;
+    backlinksGaps: Array<{
+      domain: string;
+      competitorBacklinks: number;
+      ourBacklinks: number;
+      opportunity: string;
+    }>;
+    overallAnalysis: {
+      totalCompetitors: number;
+      avgCompetitorScore: number;
+      ourAdvantages: string[];
+      competitorAdvantages: string[];
+    };
+  }> {
+    // Get competitors for this website
+    const websiteCompetitors = await this.getCompetitors(websiteId);
+    const website = await this.getWebsite(websiteId);
+    
+    if (!website) {
+      throw new Error(`Website with ID ${websiteId} not found`);
+    }
+
+    // Analyze keyword opportunities
+    const keywordOpportunities = [];
+    for (const competitor of websiteCompetitors) {
+      const competitorKeywordsData = await this.getCompetitorKeywords(competitor.id);
+      
+      for (const ckw of competitorKeywordsData) {
+        if (ckw.competitorPosition && ckw.competitorPosition <= 20 && 
+            (!ckw.ourPosition || ckw.ourPosition > ckw.competitorPosition + 5)) {
+          keywordOpportunities.push({
+            keyword: ckw.keyword,
+            competitorPosition: ckw.competitorPosition,
+            ourPosition: ckw.ourPosition,
+            searchVolume: ckw.searchVolume || 0,
+            difficulty: ckw.difficulty || 0,
+            competitor: competitor.name || competitor.competitorDomain
+          });
+        }
+      }
+    }
+
+    // Analyze backlink gaps (simplified for demonstration)
+    const backlinksGaps = websiteCompetitors.map(competitor => ({
+      domain: competitor.competitorDomain,
+      competitorBacklinks: Math.floor(Math.random() * 5000) + 1000, // Mock data
+      ourBacklinks: Math.floor(Math.random() * 2000) + 500, // Mock data
+      opportunity: competitor.domainAuthority && competitor.domainAuthority > 60 ? 'high' : 'medium'
+    }));
+
+    // Overall competitive analysis
+    const avgCompetitorScore = websiteCompetitors.length > 0
+      ? Math.round(websiteCompetitors.reduce((sum, comp) => sum + (comp.overallScore || 0), 0) / websiteCompetitors.length)
+      : 0;
+
+    const ourAdvantages = [];
+    const competitorAdvantages = [];
+
+    // Analyze advantages based on scores
+    const ourScore = website.lastScanned ? 75 : 0; // Default score for demo
+    if (ourScore > avgCompetitorScore) {
+      ourAdvantages.push("Higher overall SEO score");
+    } else {
+      competitorAdvantages.push("Competitors have higher SEO scores");
+    }
+
+    // Technical analysis
+    const highTechCompetitors = websiteCompetitors.filter(c => (c.technicalScore || 0) > 80).length;
+    if (highTechCompetitors < websiteCompetitors.length / 2) {
+      ourAdvantages.push("Technical SEO opportunity exists");
+    } else {
+      competitorAdvantages.push("Strong technical SEO among competitors");
+    }
+
+    return {
+      keywordOpportunities: keywordOpportunities.slice(0, 20), // Top 20 opportunities
+      backlinksGaps,
+      overallAnalysis: {
+        totalCompetitors: websiteCompetitors.length,
+        avgCompetitorScore,
+        ourAdvantages,
+        competitorAdvantages
+      }
     };
   }
 }

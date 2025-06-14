@@ -79,6 +79,38 @@ export const keywordRankings = pgTable("keyword_rankings", {
   checkedAt: timestamp("checked_at").defaultNow().notNull(),
 });
 
+// Competitors table for tracking competitor websites
+export const competitors = pgTable("competitors", {
+  id: serial("id").primaryKey(),
+  websiteId: integer("website_id").references(() => websites.id).notNull(),
+  competitorUrl: text("competitor_url").notNull(),
+  competitorDomain: text("competitor_domain").notNull(),
+  name: text("name"), // Optional friendly name
+  isActive: boolean("is_active").default(true).notNull(),
+  lastAnalyzed: timestamp("last_analyzed"),
+  overallScore: integer("overall_score"),
+  technicalScore: integer("technical_score"),
+  contentScore: integer("content_score"),
+  performanceScore: integer("performance_score"),
+  estimatedTraffic: integer("estimated_traffic"),
+  domainAuthority: integer("domain_authority"),
+  competitiveStrength: text("competitive_strength"), // 'low', 'medium', 'high'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Competitor keywords overlap table
+export const competitorKeywords = pgTable("competitor_keywords", {
+  id: serial("id").primaryKey(),
+  competitorId: integer("competitor_id").references(() => competitors.id).notNull(),
+  keyword: text("keyword").notNull(),
+  ourPosition: integer("our_position"),
+  competitorPosition: integer("competitor_position"),
+  searchVolume: integer("search_volume"),
+  difficulty: integer("difficulty"),
+  gap: text("gap"), // 'opportunity', 'threat', 'equal'
+  lastChecked: timestamp("last_checked").defaultNow().notNull(),
+});
+
 // Score history for tracking changes over time
 export const scoreHistory = pgTable("score_history", {
   id: serial("id").primaryKey(),
@@ -98,6 +130,7 @@ export const websitesRelations = relations(websites, ({ many }) => ({
   scoreHistory: many(scoreHistory),
   backlinks: many(backlinks),
   keywords: many(keywords),
+  competitors: many(competitors),
 }));
 
 // SEO Analysis relations
@@ -149,6 +182,23 @@ export const keywordRankingsRelations = relations(keywordRankings, ({ one }) => 
   }),
 }));
 
+// Competitors relations
+export const competitorsRelations = relations(competitors, ({ one, many }) => ({
+  website: one(websites, {
+    fields: [competitors.websiteId],
+    references: [websites.id],
+  }),
+  competitorKeywords: many(competitorKeywords),
+}));
+
+// Competitor keywords relations
+export const competitorKeywordsRelations = relations(competitorKeywords, ({ one }) => ({
+  competitor: one(competitors, {
+    fields: [competitorKeywords.competitorId],
+    references: [competitors.id],
+  }),
+}));
+
 // Website schemas
 export const insertWebsiteSchema = createInsertSchema(websites).omit({
   id: true,
@@ -183,6 +233,16 @@ export const insertKeywordRankingSchema = createInsertSchema(keywordRankings).om
   checkedAt: true,
 });
 
+export const insertCompetitorSchema = createInsertSchema(competitors).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCompetitorKeywordSchema = createInsertSchema(competitorKeywords).omit({
+  id: true,
+  lastChecked: true,
+});
+
 // Types
 export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
@@ -196,6 +256,10 @@ export type Keyword = typeof keywords.$inferSelect;
 export type InsertKeyword = z.infer<typeof insertKeywordSchema>;
 export type KeywordRanking = typeof keywordRankings.$inferSelect;
 export type InsertKeywordRanking = z.infer<typeof insertKeywordRankingSchema>;
+export type Competitor = typeof competitors.$inferSelect;
+export type InsertCompetitor = z.infer<typeof insertCompetitorSchema>;
+export type CompetitorKeyword = typeof competitorKeywords.$inferSelect;
+export type InsertCompetitorKeyword = z.infer<typeof insertCompetitorKeywordSchema>;
 
 // SEO Issue Schema
 export const seoIssueSchema = z.object({
