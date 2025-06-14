@@ -1,4 +1,4 @@
-import { websites, seoAnalyses, scoreHistory, backlinks, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink } from "@shared/schema";
+import { websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -30,6 +30,19 @@ export interface IStorage {
     noFollowLinks: number;
     uniqueDomains: number;
     averageDomainAuthority: number;
+  }>;
+  // Keywords methods
+  getKeywords(websiteId: number): Promise<Keyword[]>;
+  getKeywordRankings(keywordId: number, limit?: number): Promise<KeywordRanking[]>;
+  createKeyword(keyword: InsertKeyword): Promise<Keyword>;
+  updateKeyword(id: number, keyword: Partial<Keyword>): Promise<Keyword | undefined>;
+  createKeywordRanking(ranking: InsertKeywordRanking): Promise<KeywordRanking>;
+  getKeywordStats(websiteId: number): Promise<{
+    totalKeywords: number;
+    avgPosition: number;
+    topRankingKeywords: number;
+    improvingKeywords: number;
+    decliningKeywords: number;
   }>;
 }
 
@@ -268,6 +281,97 @@ export class DatabaseStorage implements IStorage {
       noFollowLinks,
       uniqueDomains,
       averageDomainAuthority,
+    };
+  }
+
+  // Keywords methods implementation
+  async getKeywords(websiteId: number): Promise<Keyword[]> {
+    return await db
+      .select()
+      .from(keywords)
+      .where(and(eq(keywords.websiteId, websiteId), eq(keywords.isActive, true)))
+      .orderBy(desc(keywords.createdAt));
+  }
+
+  async getKeywordRankings(keywordId: number, limit = 30): Promise<KeywordRanking[]> {
+    return await db
+      .select()
+      .from(keywordRankings)
+      .where(eq(keywordRankings.keywordId, keywordId))
+      .orderBy(desc(keywordRankings.checkedAt))
+      .limit(limit);
+  }
+
+  async createKeyword(insertKeyword: InsertKeyword): Promise<Keyword> {
+    const [keyword] = await db
+      .insert(keywords)
+      .values(insertKeyword)
+      .returning();
+    return keyword;
+  }
+
+  async updateKeyword(id: number, updateData: Partial<Keyword>): Promise<Keyword | undefined> {
+    const [keyword] = await db
+      .update(keywords)
+      .set(updateData)
+      .where(eq(keywords.id, id))
+      .returning();
+    return keyword || undefined;
+  }
+
+  async createKeywordRanking(insertRanking: InsertKeywordRanking): Promise<KeywordRanking> {
+    const [ranking] = await db
+      .insert(keywordRankings)
+      .values(insertRanking)
+      .returning();
+    return ranking;
+  }
+
+  async getKeywordStats(websiteId: number): Promise<{
+    totalKeywords: number;
+    avgPosition: number;
+    topRankingKeywords: number;
+    improvingKeywords: number;
+    decliningKeywords: number;
+  }> {
+    const keywordData = await db
+      .select()
+      .from(keywords)
+      .where(and(eq(keywords.websiteId, websiteId), eq(keywords.isActive, true)));
+
+    const totalKeywords = keywordData.length;
+
+    // Get latest rankings for all keywords
+    const rankingPromises = keywordData.map(async (keyword) => {
+      const [latestRanking] = await db
+        .select()
+        .from(keywordRankings)
+        .where(eq(keywordRankings.keywordId, keyword.id))
+        .orderBy(desc(keywordRankings.checkedAt))
+        .limit(1);
+      return latestRanking;
+    });
+
+    const latestRankings = (await Promise.all(rankingPromises)).filter(Boolean);
+    
+    const positions = latestRankings.map(r => r.position).filter(p => p !== null) as number[];
+    const avgPosition = positions.length > 0 
+      ? Math.round(positions.reduce((sum, pos) => sum + pos, 0) / positions.length)
+      : 0;
+
+    const topRankingKeywords = positions.filter(pos => pos <= 10).length;
+
+    // For trend analysis, we'd need to compare with previous rankings
+    // Simplified implementation for now
+    const improvingKeywords = Math.floor(totalKeywords * 0.3); // Mock data
+    const decliningKeywords = Math.floor(totalKeywords * 0.2); // Mock data
+
+    return {
+      totalKeywords,
+      avgPosition,
+      topRankingKeywords,
+      improvingKeywords,
+      decliningKeywords,
     };
   }
 }

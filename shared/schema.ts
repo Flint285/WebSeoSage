@@ -54,6 +54,31 @@ export const backlinks = pgTable("backlinks", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Keywords table for tracking keyword rankings and performance
+export const keywords = pgTable("keywords", {
+  id: serial("id").primaryKey(),
+  websiteId: integer("website_id").references(() => websites.id).notNull(),
+  keyword: text("keyword").notNull(),
+  searchVolume: integer("search_volume"),
+  difficulty: integer("difficulty"), // 1-100 keyword difficulty score
+  cpc: real("cpc"), // Cost per click
+  intent: text("intent"), // 'informational', 'commercial', 'transactional', 'navigational'
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Keyword rankings table for tracking position changes over time
+export const keywordRankings = pgTable("keyword_rankings", {
+  id: serial("id").primaryKey(),
+  keywordId: integer("keyword_id").references(() => keywords.id).notNull(),
+  position: integer("position"), // 1-100+ search result position
+  url: text("url"), // Which page ranks for this keyword
+  searchEngine: text("search_engine").default("google").notNull(),
+  location: text("location").default("global"), // Geographic location for ranking
+  device: text("device").default("desktop"), // 'desktop', 'mobile'
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+});
+
 // Score history for tracking changes over time
 export const scoreHistory = pgTable("score_history", {
   id: serial("id").primaryKey(),
@@ -72,6 +97,7 @@ export const websitesRelations = relations(websites, ({ many }) => ({
   analyses: many(seoAnalyses),
   scoreHistory: many(scoreHistory),
   backlinks: many(backlinks),
+  keywords: many(keywords),
 }));
 
 // SEO Analysis relations
@@ -106,6 +132,23 @@ export const backlinksRelations = relations(backlinks, ({ one }) => ({
   }),
 }));
 
+// Keywords relations
+export const keywordsRelations = relations(keywords, ({ one, many }) => ({
+  website: one(websites, {
+    fields: [keywords.websiteId],
+    references: [websites.id],
+  }),
+  rankings: many(keywordRankings),
+}));
+
+// Keyword rankings relations
+export const keywordRankingsRelations = relations(keywordRankings, ({ one }) => ({
+  keyword: one(keywords, {
+    fields: [keywordRankings.keywordId],
+    references: [keywords.id],
+  }),
+}));
+
 // Website schemas
 export const insertWebsiteSchema = createInsertSchema(websites).omit({
   id: true,
@@ -130,6 +173,16 @@ export const insertBacklinkSchema = createInsertSchema(backlinks).omit({
   lastSeen: true,
 });
 
+export const insertKeywordSchema = createInsertSchema(keywords).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertKeywordRankingSchema = createInsertSchema(keywordRankings).omit({
+  id: true,
+  checkedAt: true,
+});
+
 // Types
 export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
@@ -139,6 +192,10 @@ export type ScoreHistory = typeof scoreHistory.$inferSelect;
 export type InsertScoreHistory = z.infer<typeof insertScoreHistorySchema>;
 export type Backlink = typeof backlinks.$inferSelect;
 export type InsertBacklink = z.infer<typeof insertBacklinkSchema>;
+export type Keyword = typeof keywords.$inferSelect;
+export type InsertKeyword = z.infer<typeof insertKeywordSchema>;
+export type KeywordRanking = typeof keywordRankings.$inferSelect;
+export type InsertKeywordRanking = z.infer<typeof insertKeywordRankingSchema>;
 
 // SEO Issue Schema
 export const seoIssueSchema = z.object({
