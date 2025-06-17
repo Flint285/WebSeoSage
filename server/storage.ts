@@ -77,19 +77,25 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<any | undefined> {
-    // User management to be implemented later
-    return undefined;
+  // User operations for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
-  async getUserByUsername(username: string): Promise<any | undefined> {
-    // User management to be implemented later
-    return undefined;
-  }
-
-  async createUser(insertUser: any): Promise<any> {
-    // User management to be implemented later
-    return { id: 1, ...insertUser };
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 
   async getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined> {

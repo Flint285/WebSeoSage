@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertSeoAnalysisSchema, type SeoIssue, type SeoRecommendation, type TechnicalCheck } from "@shared/schema";
+import { insertSeoAnalysisSchema, insertWebsiteSchema, type SeoIssue, type SeoRecommendation, type TechnicalCheck } from "@shared/schema";
 import { serpTracker } from "./serp-tracker";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
 
