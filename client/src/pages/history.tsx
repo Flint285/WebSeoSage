@@ -50,9 +50,16 @@ export default function History() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="text-2xl font-bold text-primary flex items-center">
-              <ChartLine className="h-8 w-8 mr-2" />
-              SEO History & Tracking
+            <div className="flex items-center space-x-4">
+              <Link href="/">
+                <Button variant="ghost" className="text-primary hover:text-primary/80">
+                  ← Back to Dashboard
+                </Button>
+              </Link>
+              <div className="text-2xl font-bold text-primary flex items-center">
+                <ChartLine className="h-8 w-8 mr-2" />
+                SEO History & Tracking
+              </div>
             </div>
             <Button className="bg-primary text-primary-foreground hover:bg-blue-700">
               <TrendingUp className="h-4 w-4 mr-2" />
