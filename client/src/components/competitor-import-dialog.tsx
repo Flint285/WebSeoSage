@@ -13,9 +13,10 @@ import type { Website } from "@shared/schema";
 
 interface CompetitorImportDialogProps {
   website: Website;
+  children: React.ReactNode;
 }
 
-export function CompetitorImportDialog({ website }: CompetitorImportDialogProps) {
+export function CompetitorImportDialog({ website, children }: CompetitorImportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [importMethod, setImportMethod] = useState<"single" | "bulk" | "samples">("single");
   const [formData, setFormData] = useState({
@@ -168,10 +169,7 @@ export function CompetitorImportDialog({ website }: CompetitorImportDialogProps)
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Competitors
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
