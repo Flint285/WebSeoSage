@@ -101,15 +101,15 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
     );
   }
 
-  // Create safe analysis data with proper defaults
-  const safeAnalysis = gapsAnalysis || {
-    keywordOpportunities: [],
-    backlinksGaps: [],
+  // Create safe analysis data with proper defaults and additional safety checks
+  const safeAnalysis: CompetitorGapsAnalysis = {
+    keywordOpportunities: gapsAnalysis?.keywordOpportunities || [],
+    backlinksGaps: gapsAnalysis?.backlinksGaps || [],
     overallAnalysis: {
-      totalCompetitors: competitors.length || 0,
-      avgCompetitorScore: 0,
-      ourAdvantages: [],
-      competitorAdvantages: []
+      totalCompetitors: gapsAnalysis?.overallAnalysis?.totalCompetitors || competitors.length || 0,
+      avgCompetitorScore: gapsAnalysis?.overallAnalysis?.avgCompetitorScore || 0,
+      ourAdvantages: gapsAnalysis?.overallAnalysis?.ourAdvantages || [],
+      competitorAdvantages: gapsAnalysis?.overallAnalysis?.competitorAdvantages || []
     }
   };
 
