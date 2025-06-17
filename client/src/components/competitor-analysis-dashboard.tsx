@@ -442,7 +442,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                   </p>
                 </CardHeader>
                 <CardContent>
-                  {gapsAnalysis?.backlinksGaps.length ? (
+                  {safeGapsAnalysis.backlinksGaps.length ? (
                     <div className="rounded-md border">
                       <Table>
                         <TableHeader>
@@ -455,7 +455,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {gapsAnalysis.backlinksGaps.map((gap, index) => (
+                          {safeGapsAnalysis.backlinksGaps.map((gap, index) => (
                             <TableRow key={index}>
                               <TableCell>
                                 <span className="font-medium">{gap.domain}</span>
@@ -508,9 +508,9 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {gapsAnalysis?.overallAnalysis.ourAdvantages.length ? (
+                    {safeGapsAnalysis.overallAnalysis.ourAdvantages.length ? (
                       <div className="space-y-3">
-                        {gapsAnalysis.overallAnalysis.ourAdvantages.map((advantage, index) => (
+                        {safeGapsAnalysis.overallAnalysis.ourAdvantages.map((advantage, index) => (
                           <div key={index} className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                             <TrendingUp className="h-5 w-5 text-green-600" />
                             <span className="text-sm font-medium">{advantage}</span>
@@ -535,9 +535,9 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {gapsAnalysis?.overallAnalysis.competitorAdvantages.length ? (
+                    {safeGapsAnalysis.overallAnalysis.competitorAdvantages.length ? (
                       <div className="space-y-3">
-                        {gapsAnalysis.overallAnalysis.competitorAdvantages.map((weakness, index) => (
+                        {safeGapsAnalysis.overallAnalysis.competitorAdvantages.map((weakness, index) => (
                           <div key={index} className="flex items-center space-x-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                             <TrendingDown className="h-5 w-5 text-red-600" />
                             <span className="text-sm font-medium">{weakness}</span>
