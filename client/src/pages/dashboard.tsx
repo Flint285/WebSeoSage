@@ -319,19 +319,19 @@ export default function Dashboard() {
             <div>
               <h3 className="font-semibold text-foreground mb-4">Tools</h3>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">SEO Analyzer</a></li>
-                <li><a href="#" className="hover:text-primary">Keyword Research</a></li>
-                <li><a href="#" className="hover:text-primary">Backlink Checker</a></li>
-                <li><a href="#" className="hover:text-primary">Site Audit</a></li>
+                <li><Link href="/" className="hover:text-primary">SEO Analyzer</Link></li>
+                <li><Link href="/history" className="hover:text-primary">Website History</Link></li>
+                <li><Link href="/history" className="hover:text-primary">Backlink Tracker</Link></li>
+                <li><Link href="/history" className="hover:text-primary">Keyword Monitor</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-4">Support</h3>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">Documentation</a></li>
-                <li><a href="#" className="hover:text-primary">Help Center</a></li>
-                <li><a href="#" className="hover:text-primary">Contact Us</a></li>
-                <li><a href="#" className="hover:text-primary">API Reference</a></li>
+                <li><button onClick={() => toast({ title: "Documentation", description: "Visit our comprehensive guides for detailed SEO optimization tutorials." })} className="hover:text-primary text-left">Documentation</button></li>
+                <li><button onClick={() => toast({ title: "Help Center", description: "For support, contact us at support@seoanalyzer.pro" })} className="hover:text-primary text-left">Help Center</button></li>
+                <li><button onClick={() => toast({ title: "Contact Us", description: "Reach out to our team at hello@seoanalyzer.pro for any questions." })} className="hover:text-primary text-left">Contact Us</button></li>
+                <li><Link href="/history" className="hover:text-primary">API Reference</Link></li>
               </ul>
             </div>
           </div>
