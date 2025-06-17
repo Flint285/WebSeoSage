@@ -639,8 +639,23 @@ class SeoAnalyzer {
 export async function registerRoutes(app: Express): Promise<Server> {
   const seoAnalyzer = new SeoAnalyzer();
 
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Analyze website endpoint
-  app.post("/api/analyze", async (req, res) => {
+  app.post("/api/analyze", isAuthenticated, async (req: any, res) => {
     try {
       const { url } = req.body;
       
@@ -656,11 +671,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid URL format" });
       }
       
-      // Get or create website record
+      // Get or create website record for the authenticated user
+      const userId = req.user.claims.sub;
       let website = await storage.getWebsiteByUrl(url);
       if (!website) {
         const domain = parsedUrl.hostname;
         website = await storage.createWebsite({
+          userId,
           url,
           domain,
           title: null,
