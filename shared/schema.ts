@@ -1,11 +1,34 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, real, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User storage table for Replit Auth
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Websites table for tracking multiple sites
 export const websites = pgTable("websites", {
   id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
   url: text("url").notNull().unique(),
   domain: varchar("domain", { length: 255 }).notNull(),
   title: text("title"),
@@ -124,8 +147,17 @@ export const scoreHistory = pgTable("score_history", {
   date: timestamp("date").defaultNow().notNull(),
 });
 
+// User relations
+export const usersRelations = relations(users, ({ many }) => ({
+  websites: many(websites),
+}));
+
 // Website relations
-export const websitesRelations = relations(websites, ({ many }) => ({
+export const websitesRelations = relations(websites, ({ one, many }) => ({
+  user: one(users, {
+    fields: [websites.userId],
+    references: [users.id],
+  }),
   analyses: many(seoAnalyses),
   scoreHistory: many(scoreHistory),
   backlinks: many(backlinks),
@@ -243,7 +275,12 @@ export const insertCompetitorKeywordSchema = createInsertSchema(competitorKeywor
   lastChecked: true,
 });
 
+// User schemas
+export const upsertUserSchema = createInsertSchema(users);
+
 // Types
+export type User = typeof users.$inferSelect;
+export type UpsertUser = typeof users.$inferInsert;
 export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
 export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;

@@ -1,11 +1,11 @@
-import { websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, competitors, competitorKeywords, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking, type Competitor, type InsertCompetitor, type CompetitorKeyword, type InsertCompetitorKeyword } from "@shared/schema";
+import { users, websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, competitors, competitorKeywords, type User, type UpsertUser, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking, type Competitor, type InsertCompetitor, type CompetitorKeyword, type InsertCompetitorKeyword } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: number): Promise<any | undefined>;
-  getUserByUsername(username: string): Promise<any | undefined>;
-  createUser(user: any): Promise<any>;
+  // User operations for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined>;
   getSeoAnalysisByUrl(url: string): Promise<SeoAnalysis | undefined>;
   createSeoAnalysis(analysis: InsertSeoAnalysis): Promise<SeoAnalysis>;
