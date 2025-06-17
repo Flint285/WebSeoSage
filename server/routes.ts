@@ -754,10 +754,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all websites
-  app.get("/api/websites", async (req, res) => {
+  // Get user's websites
+  app.get("/api/websites", isAuthenticated, async (req: any, res) => {
     try {
-      const websites = await storage.getAllWebsites();
+      const userId = req.user.claims.sub;
+      const websites = await storage.getUserWebsites(userId);
       res.json(websites);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch websites" });

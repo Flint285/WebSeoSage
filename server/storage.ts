@@ -10,9 +10,10 @@ export interface IStorage {
   getSeoAnalysisByUrl(url: string): Promise<SeoAnalysis | undefined>;
   createSeoAnalysis(analysis: InsertSeoAnalysis): Promise<SeoAnalysis>;
   getAllSeoAnalyses(): Promise<SeoAnalysis[]>;
-  // New methods for historical tracking
+  // Website methods (user-aware)
   getWebsite(id: number): Promise<Website | undefined>;
   getWebsiteByUrl(url: string): Promise<Website | undefined>;
+  getUserWebsites(userId: string): Promise<Website[]>;
   createWebsite(website: InsertWebsite): Promise<Website>;
   updateWebsite(id: number, website: Partial<Website>): Promise<Website | undefined>;
   getWebsiteHistory(websiteId: number, limit?: number): Promise<ScoreHistory[]>;
@@ -196,6 +197,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(websites.id, id))
       .returning();
     return website || undefined;
+  }
+
+  async getUserWebsites(userId: string): Promise<Website[]> {
+    return await db
+      .select()
+      .from(websites)
+      .where(and(eq(websites.userId, userId), eq(websites.isActive, true)))
+      .orderBy(desc(websites.lastScanned));
   }
 
   async getAllWebsites(): Promise<Website[]> {
