@@ -63,6 +63,18 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
     enabled: !!website.id && competitors.length > 0,
   });
 
+  // Provide default values if data is not available
+  const safeGapsAnalysis = gapsAnalysis || {
+    keywordOpportunities: [],
+    backlinksGaps: [],
+    overallAnalysis: {
+      totalCompetitors: competitors.length,
+      avgCompetitorScore: 0,
+      ourAdvantages: [],
+      competitorAdvantages: []
+    }
+  };
+
   const getCompetitiveStrengthColor = (strength: string | null) => {
     switch (strength) {
       case 'high':
@@ -160,7 +172,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Avg Competitor Score</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {gapsAnalysis?.overallAnalysis.avgCompetitorScore || 0}
+                  {safeGapsAnalysis.overallAnalysis.avgCompetitorScore}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   vs Your Score: 75
@@ -177,7 +189,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Keyword Gaps</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {gapsAnalysis?.keywordOpportunities.length || 0}
+                  {safeGapsAnalysis.keywordOpportunities.length}
                 </p>
                 <p className="text-xs text-muted-foreground">opportunities found</p>
               </div>
@@ -193,7 +205,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                 <p className="text-sm font-medium text-muted-foreground">Competitive Position</p>
                 <p className="text-2xl font-bold text-foreground">Strong</p>
                 <p className="text-xs text-muted-foreground">
-                  {gapsAnalysis?.overallAnalysis.ourAdvantages.length || 0} advantages
+                  {safeGapsAnalysis.overallAnalysis.ourAdvantages.length} advantages
                 </p>
               </div>
             </div>
@@ -360,7 +372,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                   </p>
                 </CardHeader>
                 <CardContent>
-                  {gapsAnalysis?.keywordOpportunities.length ? (
+                  {safeGapsAnalysis.keywordOpportunities.length ? (
                     <div className="rounded-md border">
                       <Table>
                         <TableHeader>
@@ -374,7 +386,7 @@ export function CompetitorAnalysisDashboard({ website }: CompetitorAnalysisDashb
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {gapsAnalysis.keywordOpportunities.map((opportunity, index) => (
+                          {safeGapsAnalysis.keywordOpportunities.map((opportunity, index) => (
                             <TableRow key={index}>
                               <TableCell>
                                 <span className="font-medium">{opportunity.keyword}</span>
