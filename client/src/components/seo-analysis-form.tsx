@@ -20,52 +20,41 @@ export function SeoAnalysisForm({ onAnalyze, isLoading }: SeoAnalysisFormProps) 
   };
 
   return (
-    <Card className="p-8 mb-8">
-      <CardContent className="p-0">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Comprehensive SEO Analysis</h1>
-          <p className="text-muted-foreground text-lg">
-            Get detailed insights into your website's SEO performance and discover actionable improvement opportunities
-          </p>
+    <div className="max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <Input
+            type="url"
+            placeholder="Enter your website URL (e.g., https://example.com)"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="px-4 py-4 text-lg"
+            disabled={isLoading}
+            required
+          />
         </div>
-        
-        <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                type="url"
-                placeholder="Enter your website URL (e.g., https://example.com)"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="px-4 py-4 text-lg"
-                disabled={isLoading}
-                required
-              />
-            </div>
-            <Button 
-              type="submit" 
-              disabled={isLoading || !url || url === "https://"}
-              className="bg-primary text-primary-foreground px-8 py-4 text-lg font-semibold hover:bg-blue-700 whitespace-nowrap"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Search className="h-4 w-4 mr-2" />
-                  Analyze Website
-                </>
-              )}
-            </Button>
-          </form>
-          <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
-            <Shield className="h-4 w-4 mr-2 text-secondary" />
-            Analysis typically takes 30-60 seconds
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        <Button 
+          type="submit" 
+          disabled={isLoading || !url || url === "https://"}
+          className="bg-primary text-primary-foreground px-8 py-4 text-lg font-semibold hover:bg-blue-700 whitespace-nowrap"
+        >
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <Search className="h-4 w-4 mr-2" />
+              Analyze Website
+            </>
+          )}
+        </Button>
+      </form>
+      <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
+        <Shield className="h-4 w-4 mr-2 text-secondary" />
+        Analysis typically takes 30-60 seconds
+      </div>
+    </div>
   );
 }

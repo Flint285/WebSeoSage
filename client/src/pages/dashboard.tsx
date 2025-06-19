@@ -19,7 +19,7 @@ import type { SeoAnalysis } from "@shared/schema";
 import { PdfGenerator } from "@/lib/pdf-generator";
 import { Link } from "wouter";
 import { Navigation } from "@/components/navigation";
-import { EnhancedAnalysisForm } from "@/components/ui/enhanced-analysis-form";
+
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 import { AnalyzingProgress, PageLoader } from "@/components/loading-states";
