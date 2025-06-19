@@ -92,14 +92,14 @@ export default function Home() {
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/history">
+            <Link href="/analytics">
               <CardHeader className="pb-2">
                 <BarChart3 className="h-8 w-8 text-green-600 dark:text-green-400" />
               </CardHeader>
               <CardContent>
-                <CardTitle className="text-lg mb-1">View Reports</CardTitle>
+                <CardTitle className="text-lg mb-1">Advanced Analytics</CardTitle>
                 <CardDescription>
-                  Access your previous analyses and reports
+                  Comprehensive SEO insights and data visualization
                 </CardDescription>
               </CardContent>
             </Link>

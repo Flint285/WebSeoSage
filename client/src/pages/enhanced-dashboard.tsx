@@ -85,16 +85,22 @@ export default function EnhancedDashboard() {
     analyzeMutation.mutate(url);
   };
 
-  const handleGeneratePdf = () => {
+  const handleGeneratePdf = async () => {
     if (!currentAnalysis) return;
     
-    const pdfGenerator = new PdfGenerator();
-    pdfGenerator.generateReport(currentAnalysis);
-    
-    toast({
-      title: "PDF Generated",
-      description: "Your SEO report has been downloaded.",
-    });
+    try {
+      await PdfGenerator.generateSeoReport(currentAnalysis);
+      toast({
+        title: "PDF Generated",
+        description: "Your SEO report has been downloaded.",
+      });
+    } catch (error) {
+      toast({
+        title: "PDF Generation Failed",
+        description: "Failed to generate PDF report. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShare = () => {
@@ -144,7 +150,7 @@ export default function EnhancedDashboard() {
           
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              Welcome, {user?.firstName || user?.email}
+              Welcome, {user?.firstName || user?.email || "User"}
             </span>
             <Button 
               variant="outline"
@@ -204,7 +210,7 @@ export default function EnhancedDashboard() {
                     <CardContent className="p-6">
                       <SeoScoreCircle 
                         score={currentAnalysis.overallScore}
-                        size="large"
+                        size={120}
                       />
                     </CardContent>
                   </Card>
