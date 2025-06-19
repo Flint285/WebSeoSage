@@ -7,9 +7,11 @@ import { PageLoader, DashboardSkeleton } from "@/components/loading-states";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Search, TrendingUp, Globe, Plus, Clock, CheckCircle } from "lucide-react";
+import { BarChart3, Search, TrendingUp, Globe, Plus, Clock, CheckCircle, Activity, Zap } from "lucide-react";
 import { Link } from "wouter";
 import type { Website } from "@shared/schema";
+import { MetricCard } from "@/components/ui/metric-card";
+import { StatusIndicator } from "@/components/ui/status-indicator";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -52,8 +54,49 @@ export default function Home() {
           </div>
         )}
 
+        {/* Dashboard Metrics */}
+        {!isFirstTimeUser && websites.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your SEO Overview</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <MetricCard
+                title="Total Websites"
+                value={websites.length}
+                icon={Globe}
+                description="Total number of websites being monitored"
+                trend="up"
+                trendValue={12}
+              />
+              <MetricCard
+                title="Active Scans"
+                value={websites.filter(w => w.isActive).length}
+                icon={Activity}
+                description="Websites with active monitoring enabled"
+                trend="neutral"
+              />
+              <MetricCard
+                title="Avg Score"
+                value={75}
+                suffix="/100"
+                icon={BarChart3}
+                description="Average SEO score across all websites"
+                trend="up"
+                trendValue={8}
+              />
+              <MetricCard
+                title="Issues Found"
+                value={23}
+                icon={Zap}
+                description="Total SEO issues across all websites"
+                trend="down"
+                trendValue={15}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Recent Websites */}
-        {!isFirstTimeUser && (
+        {!isFirstTimeUser && websites.length > 0 && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Websites</h2>
@@ -65,15 +108,21 @@ export default function Home() {
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               {recentWebsites.map((website) => (
-                <Card key={website.id} className="hover:shadow-lg transition-shadow">
+                <Card key={website.id} className="hover:shadow-lg transition-all duration-200 hover:scale-105">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-white truncate">
                         {new URL(website.url).hostname}
                       </h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {website.scanFrequency || "Manual"}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <StatusIndicator 
+                          status={website.isActive ? "success" : "pending"}
+                          label={website.isActive ? "Active" : "Paused"}
+                        />
+                        <Badge variant="secondary" className="text-xs">
+                          {website.scanFrequency || "Manual"}
+                        </Badge>
+                      </div>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                       Last scanned: {website.lastScanned 
@@ -82,7 +131,7 @@ export default function Home() {
                       }
                     </p>
                     <Link href="/history">
-                      <Button variant="outline" size="sm" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full hover:bg-blue-50 dark:hover:bg-blue-900/20">
                         View Details
                       </Button>
                     </Link>

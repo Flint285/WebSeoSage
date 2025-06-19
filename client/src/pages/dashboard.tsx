@@ -18,9 +18,15 @@ import { CheckCircle, XCircle, Shield, Calendar, Download, Share, ChartLine } fr
 import type { SeoAnalysis } from "@shared/schema";
 import { PdfGenerator } from "@/lib/pdf-generator";
 import { Link } from "wouter";
+import { Navigation } from "@/components/navigation";
+import { EnhancedAnalysisForm } from "@/components/ui/enhanced-analysis-form";
+import { ProgressIndicator } from "@/components/ui/progress-indicator";
+import { StatusIndicator } from "@/components/ui/status-indicator";
+import { AnalyzingProgress, PageLoader } from "@/components/loading-states";
 
 export default function Dashboard() {
   const [currentAnalysis, setCurrentAnalysis] = useState<SeoAnalysis | null>(null);
+  const [analysisStep, setAnalysisStep] = useState("Loading website...");
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -39,14 +45,36 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   const analyzeMutation = useMutation({
     mutationFn: async (url: string) => {
+      // Progressive analysis steps with realistic timing
+      const steps = [
+        "Loading website...",
+        "Analyzing technical SEO...",
+        "Evaluating content quality...",
+        "Checking performance metrics...",
+        "Assessing user experience...",
+        "Generating recommendations...",
+      ];
+      
+      for (let i = 0; i < steps.length; i++) {
+        setAnalysisStep(steps[i]);
+        if (i < steps.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1200));
+        }
+      }
+      
       const response = await apiRequest("POST", "/api/analyze", { url });
       return response.json();
     },
     onSuccess: (data: SeoAnalysis) => {
       setCurrentAnalysis(data);
       queryClient.invalidateQueries({ queryKey: ["/api/analyses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/websites"] });
       toast({
         title: "Analysis Complete",
         description: "Your SEO analysis has been completed successfully.",
