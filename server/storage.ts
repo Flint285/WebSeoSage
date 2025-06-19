@@ -1,6 +1,6 @@
 import { users, websites, seoAnalyses, scoreHistory, backlinks, keywords, keywordRankings, competitors, competitorKeywords, type User, type UpsertUser, type Website, type SeoAnalysis, type InsertSeoAnalysis, type InsertWebsite, type ScoreHistory, type InsertScoreHistory, type Backlink, type InsertBacklink, type Keyword, type InsertKeyword, type KeywordRanking, type InsertKeywordRanking, type Competitor, type InsertCompetitor, type CompetitorKeyword, type InsertCompetitorKeyword } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations for Replit Auth
@@ -612,18 +612,13 @@ export class DatabaseStorage implements IStorage {
       };
     }
 
-    // Get all analyses for user's websites
+    // Get all analyses for user's websites (optimized single query)
     const websiteIds = userWebsites.map(w => w.id);
-    const allAnalyses = [];
-    
-    for (const websiteId of websiteIds) {
-      const analyses = await db
-        .select()
-        .from(seoAnalyses)
-        .where(eq(seoAnalyses.websiteId, websiteId))
-        .orderBy(desc(seoAnalyses.createdAt));
-      allAnalyses.push(...analyses);
-    }
+    const allAnalyses = websiteIds.length > 0 ? await db
+      .select()
+      .from(seoAnalyses)
+      .where(inArray(seoAnalyses.websiteId, websiteIds))
+      .orderBy(desc(seoAnalyses.createdAt)) : [];
 
     const totalAnalyses = allAnalyses.length;
     const averageScore = totalAnalyses > 0 
