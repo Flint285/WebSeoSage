@@ -12,6 +12,8 @@ import { Link } from "wouter";
 import type { Website } from "@shared/schema";
 import { MetricCard } from "@/components/ui/metric-card";
 import { StatusIndicator } from "@/components/ui/status-indicator";
+import { EnhancedCard } from "@/components/ui/enhanced-card";
+import { FadeIn, SlideIn } from "@/components/ui/micro-animations";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -35,17 +37,19 @@ export default function Home() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user?.firstName || "there"}!
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            {isFirstTimeUser 
-              ? "Let's get started with your first SEO analysis" 
-              : "Ready to analyze your website's SEO performance?"
-            }
-          </p>
-        </div>
+        <FadeIn>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              Welcome back, {user?.firstName || "there"}!
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              {isFirstTimeUser 
+                ? "Let's get started with your first SEO analysis" 
+                : "Ready to analyze your website's SEO performance?"
+              }
+            </p>
+          </div>
+        </FadeIn>
 
         {/* First Time User Guide */}
         {isFirstTimeUser && (
@@ -56,43 +60,53 @@ export default function Home() {
 
         {/* Dashboard Metrics */}
         {!isFirstTimeUser && websites.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your SEO Overview</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <MetricCard
-                title="Total Websites"
-                value={websites.length}
-                icon={Globe}
-                description="Total number of websites being monitored"
-                trend="up"
-                trendValue={12}
-              />
-              <MetricCard
-                title="Active Scans"
-                value={websites.filter(w => w.isActive).length}
-                icon={Activity}
-                description="Websites with active monitoring enabled"
-                trend="neutral"
-              />
-              <MetricCard
-                title="Avg Score"
-                value={75}
-                suffix="/100"
-                icon={BarChart3}
-                description="Average SEO score across all websites"
-                trend="up"
-                trendValue={8}
-              />
-              <MetricCard
-                title="Issues Found"
-                value={23}
-                icon={Zap}
-                description="Total SEO issues across all websites"
-                trend="down"
-                trendValue={15}
-              />
+          <SlideIn delay={200}>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your SEO Overview</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <FadeIn delay={300}>
+                  <MetricCard
+                    title="Total Websites"
+                    value={websites.length}
+                    icon={Globe}
+                    description="Total number of websites being monitored"
+                    trend="up"
+                    trendValue={12}
+                  />
+                </FadeIn>
+                <FadeIn delay={400}>
+                  <MetricCard
+                    title="Active Scans"
+                    value={websites.filter(w => w.isActive).length}
+                    icon={Activity}
+                    description="Websites with active monitoring enabled"
+                    trend="neutral"
+                  />
+                </FadeIn>
+                <FadeIn delay={500}>
+                  <MetricCard
+                    title="Avg Score"
+                    value={75}
+                    suffix="/100"
+                    icon={BarChart3}
+                    description="Average SEO score across all websites"
+                    trend="up"
+                    trendValue={8}
+                  />
+                </FadeIn>
+                <FadeIn delay={600}>
+                  <MetricCard
+                    title="Issues Found"
+                    value={23}
+                    icon={Zap}
+                    description="Total SEO issues across all websites"
+                    trend="down"
+                    trendValue={15}
+                  />
+                </FadeIn>
+              </div>
             </div>
-          </div>
+          </SlideIn>
         )}
 
         {/* Recent Websites */}
@@ -143,66 +157,102 @@ export default function Home() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Link href="/dashboard">
-            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <Search className="h-8 w-8 text-blue-600 dark:text-blue-400 group-hover:text-blue-700" />
-                  <Badge variant="secondary">Start Here</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardTitle className="text-lg mb-1">New Analysis</CardTitle>
-                <CardDescription>
-                  {isFirstTimeUser ? "Start with your first SEO analysis" : "Analyze a website's SEO performance"}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
+        <SlideIn delay={100} direction="up">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <FadeIn delay={700}>
+              <Link href="/dashboard">
+                <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-blue-200 dark:hover:border-blue-700">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardHeader className="pb-2 relative">
+                    <div className="flex items-center justify-between">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-full group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40 transition-colors">
+                        <Search className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                        {isFirstTimeUser ? "Start Here" : "Popular"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <CardTitle className="text-lg mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      New Analysis
+                    </CardTitle>
+                    <CardDescription>
+                      {isFirstTimeUser ? "Start with your first SEO analysis" : "Analyze a website's SEO performance"}
+                    </CardDescription>
+                  </CardContent>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                </Card>
+              </Link>
+            </FadeIn>
 
-          <Link href="/analytics">
-            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
-              <CardHeader className="pb-2">
-                <BarChart3 className="h-8 w-8 text-green-600 dark:text-green-400 group-hover:text-green-700" />
-              </CardHeader>
-              <CardContent>
-                <CardTitle className="text-lg mb-1">Advanced Analytics</CardTitle>
-                <CardDescription>
-                  Comprehensive SEO insights and data visualization
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
+            <FadeIn delay={800}>
+              <Link href="/analytics">
+                <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-green-200 dark:hover:border-green-700">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardHeader className="pb-2 relative">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-full group-hover:bg-green-200 dark:group-hover:bg-green-900/40 transition-colors">
+                      <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <CardTitle className="text-lg mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                      Advanced Analytics
+                    </CardTitle>
+                    <CardDescription>
+                      Comprehensive SEO insights and data visualization
+                    </CardDescription>
+                  </CardContent>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                </Card>
+              </Link>
+            </FadeIn>
 
-          <Link href="/history">
-            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
-              <CardHeader className="pb-2">
-                <TrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400 group-hover:text-purple-700" />
-              </CardHeader>
-              <CardContent>
-                <CardTitle className="text-lg mb-1">Track Keywords</CardTitle>
-                <CardDescription>
-                  Monitor keyword rankings and performance
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
+            <FadeIn delay={900}>
+              <Link href="/history">
+                <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-purple-200 dark:hover:border-purple-700">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardHeader className="pb-2 relative">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-full group-hover:bg-purple-200 dark:group-hover:bg-purple-900/40 transition-colors">
+                      <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <CardTitle className="text-lg mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                      Track Keywords
+                    </CardTitle>
+                    <CardDescription>
+                      Monitor keyword rankings and performance
+                    </CardDescription>
+                  </CardContent>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-violet-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                </Card>
+              </Link>
+            </FadeIn>
 
-          <Link href="/history">
-            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
-              <CardHeader className="pb-2">
-                <Globe className="h-8 w-8 text-orange-600 dark:text-orange-400 group-hover:text-orange-700" />
-              </CardHeader>
-              <CardContent>
-                <CardTitle className="text-lg mb-1">Competitors</CardTitle>
-                <CardDescription>
-                  Analyze competitor SEO strategies
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+            <FadeIn delay={1000}>
+              <Link href="/history">
+                <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-orange-200 dark:hover:border-orange-700">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardHeader className="pb-2 relative">
+                    <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-full group-hover:bg-orange-200 dark:group-hover:bg-orange-900/40 transition-colors">
+                      <Globe className="h-6 w-6 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <CardTitle className="text-lg mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                      Competitors
+                    </CardTitle>
+                    <CardDescription>
+                      Analyze competitor SEO strategies
+                    </CardDescription>
+                  </CardContent>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                </Card>
+              </Link>
+            </FadeIn>
+          </div>
+        </SlideIn>
 
         {/* Features Overview */}
         <Card className="mb-8">
