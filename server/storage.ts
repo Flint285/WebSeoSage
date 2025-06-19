@@ -34,6 +34,7 @@ export interface IStorage {
   }>;
   // Keywords methods
   getKeywords(websiteId: number): Promise<Keyword[]>;
+  getKeyword(id: number): Promise<Keyword | undefined>;
   getKeywordRankings(keywordId: number, limit?: number): Promise<KeywordRanking[]>;
   createKeyword(keyword: InsertKeyword): Promise<Keyword>;
   updateKeyword(id: number, keyword: Partial<Keyword>): Promise<Keyword | undefined>;
@@ -366,6 +367,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(keywordRankings.keywordId, keywordId))
       .orderBy(desc(keywordRankings.checkedAt))
       .limit(limit);
+  }
+
+  async getKeyword(id: number): Promise<Keyword | undefined> {
+    const [keyword] = await db
+      .select()
+      .from(keywords)
+      .where(eq(keywords.id, id));
+    return keyword;
   }
 
   async createKeyword(insertKeyword: InsertKeyword): Promise<Keyword> {

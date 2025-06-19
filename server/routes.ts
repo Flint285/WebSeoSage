@@ -856,10 +856,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Backlinks endpoints
-  app.get("/api/websites/:id/backlinks", async (req, res) => {
+  // Backlinks endpoints (protected)
+  app.get("/api/websites/:id/backlinks", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const backlinks = await storage.getBacklinks(websiteId);
       res.json(backlinks);
     } catch (error) {
@@ -867,9 +875,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/websites/:id/backlinks/stats", async (req, res) => {
+  app.get("/api/websites/:id/backlinks/stats", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const stats = await storage.getBacklinkStats(websiteId);
       res.json(stats);
     } catch (error) {
@@ -877,9 +893,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/websites/:id/backlinks", async (req, res) => {
+  app.post("/api/websites/:id/backlinks", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const backlinkData = {
         ...req.body,
         websiteId,
@@ -892,10 +916,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Keywords endpoints
-  app.get("/api/websites/:id/keywords", async (req, res) => {
+  // Keywords endpoints (protected)
+  app.get("/api/websites/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const keywords = await storage.getKeywords(websiteId);
       res.json(keywords);
     } catch (error) {
@@ -903,9 +935,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/websites/:id/keywords/stats", async (req, res) => {
+  app.get("/api/websites/:id/keywords/stats", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const stats = await storage.getKeywordStats(websiteId);
       res.json(stats);
     } catch (error) {
@@ -913,9 +953,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/websites/:id/keywords", async (req, res) => {
+  app.post("/api/websites/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const keywordData = {
         ...req.body,
         websiteId,
@@ -928,10 +976,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/keywords/:id/rankings", async (req, res) => {
+  app.get("/api/keywords/:id/rankings", isAuthenticated, async (req: any, res) => {
     try {
       const keywordId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
+      
+      // Get keyword to verify user owns it through website
+      const keyword = await storage.getKeyword(keywordId);
+      if (!keyword) {
+        return res.status(404).json({ message: "Keyword not found" });
+      }
+      
+      // Verify user owns the website this keyword belongs to
+      const website = await storage.getWebsite(keyword.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const rankings = await storage.getKeywordRankings(keywordId, limit);
       res.json(rankings);
@@ -940,9 +1001,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/keywords/:id/rankings", async (req, res) => {
+  app.post("/api/keywords/:id/rankings", isAuthenticated, async (req: any, res) => {
     try {
       const keywordId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Get keyword to verify user owns it through website
+      const keywords = await storage.getKeywords(0); // Will need to verify ownership through website
+      const keyword = keywords.find(k => k.id === keywordId);
+      if (!keyword) {
+        return res.status(404).json({ message: "Keyword not found" });
+      }
+      
+      // Verify user owns the website this keyword belongs to
+      const website = await storage.getWebsite(keyword.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const rankingData = {
         ...req.body,
         keywordId,
