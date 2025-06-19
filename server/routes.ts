@@ -1024,6 +1024,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics overview endpoint
+  app.get("/api/analytics/overview", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const analytics = await storage.getAnalyticsOverview(userId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
