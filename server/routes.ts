@@ -1000,6 +1000,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/analysis/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid analysis ID" });
+      }
+      
       const analysis = await storage.getSeoAnalysis(id);
       
       if (!analysis) {
@@ -1053,6 +1057,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       const website = await storage.getWebsite(id);
       

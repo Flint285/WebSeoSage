@@ -46,8 +46,8 @@ export function WebsiteHistoryPanel({ website }: WebsiteHistoryPanelProps) {
     return "text-red-600";
   };
 
-  const latestScore = history[0];
-  const previousScore = history[1];
+  const latestScore = history.length > 0 ? history[0] : null;
+  const previousScore = history.length > 1 ? history[1] : null;
 
   return (
     <div className="space-y-6">
