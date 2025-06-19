@@ -1,64 +1,34 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { Navigation } from "@/components/navigation";
+import { FirstTimeUserGuide, NoWebsitesState } from "@/components/empty-states";
+import { PageLoader, DashboardSkeleton } from "@/components/loading-states";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Search, TrendingUp, Globe, LogOut, Plus } from "lucide-react";
+import { BarChart3, Search, TrendingUp, Globe, Plus, Clock, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import type { Website } from "@shared/schema";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const { data: websites = [], isLoading: websitesLoading } = useQuery<Website[]>({
+    queryKey: ["/api/websites"],
+    enabled: !!user,
+  });
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
-  const handleLogout = () => {
-    window.location.href = '/api/logout';
-  };
-
-  const getInitials = (firstName?: string | null, lastName?: string | null) => {
-    if (!firstName && !lastName) return "U";
-    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
-  };
+  const isFirstTimeUser = websites.length === 0;
+  const recentWebsites = websites.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
-      {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">SEO Analyzer</span>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
-                <AvatarFallback>{getInitials(user?.firstName, user?.lastName)}</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {user?.firstName || user?.email}
-              </span>
-            </div>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -68,33 +38,84 @@ export default function Home() {
             Welcome back, {user?.firstName || "there"}!
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Ready to analyze your website's SEO performance?
+            {isFirstTimeUser 
+              ? "Let's get started with your first SEO analysis" 
+              : "Ready to analyze your website's SEO performance?"
+            }
           </p>
         </div>
 
+        {/* First Time User Guide */}
+        {isFirstTimeUser && (
+          <div className="mb-8">
+            <FirstTimeUserGuide />
+          </div>
+        )}
+
+        {/* Recent Websites */}
+        {!isFirstTimeUser && (
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Websites</h2>
+              <Link href="/history">
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {recentWebsites.map((website) => (
+                <Card key={website.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                        {new URL(website.url).hostname}
+                      </h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {website.scanFrequency || "Manual"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                      Last scanned: {website.lastScanAt 
+                        ? new Date(website.lastScanAt).toLocaleDateString()
+                        : "Never"
+                      }
+                    </p>
+                    <Link href="/history">
+                      <Button variant="outline" size="sm" className="w-full">
+                        View Details
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/dashboard">
+          <Link href="/dashboard">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                  <Badge variant="secondary">New</Badge>
+                  <Search className="h-8 w-8 text-blue-600 dark:text-blue-400 group-hover:text-blue-700" />
+                  <Badge variant="secondary">Start Here</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <CardTitle className="text-lg mb-1">New Analysis</CardTitle>
                 <CardDescription>
-                  Analyze a website's SEO performance
+                  {isFirstTimeUser ? "Start with your first SEO analysis" : "Analyze a website's SEO performance"}
                 </CardDescription>
               </CardContent>
-            </Link>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/analytics">
+          <Link href="/analytics">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
               <CardHeader className="pb-2">
-                <BarChart3 className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <BarChart3 className="h-8 w-8 text-green-600 dark:text-green-400 group-hover:text-green-700" />
               </CardHeader>
               <CardContent>
                 <CardTitle className="text-lg mb-1">Advanced Analytics</CardTitle>
@@ -102,13 +123,13 @@ export default function Home() {
                   Comprehensive SEO insights and data visualization
                 </CardDescription>
               </CardContent>
-            </Link>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/history">
+          <Link href="/history">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
               <CardHeader className="pb-2">
-                <TrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <TrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400 group-hover:text-purple-700" />
               </CardHeader>
               <CardContent>
                 <CardTitle className="text-lg mb-1">Track Keywords</CardTitle>
@@ -116,13 +137,13 @@ export default function Home() {
                   Monitor keyword rankings and performance
                 </CardDescription>
               </CardContent>
-            </Link>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/history">
+          <Link href="/history">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group hover:scale-105">
               <CardHeader className="pb-2">
-                <Globe className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                <Globe className="h-8 w-8 text-orange-600 dark:text-orange-400 group-hover:text-orange-700" />
               </CardHeader>
               <CardContent>
                 <CardTitle className="text-lg mb-1">Competitors</CardTitle>
@@ -130,8 +151,8 @@ export default function Home() {
                   Analyze competitor SEO strategies
                 </CardDescription>
               </CardContent>
-            </Link>
-          </Card>
+            </Card>
+          </Link>
         </div>
 
         {/* Features Overview */}
