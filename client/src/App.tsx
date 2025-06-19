@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
-import UnifiedAnalysis from "@/pages/unified-analysis";
+import Dashboard from "@/pages/dashboard";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
@@ -19,7 +19,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/analyze" component={UnifiedAnalysis} />
+          <Route path="/analyze" component={Dashboard} />
         </>
       )}
       <Route component={NotFound} />

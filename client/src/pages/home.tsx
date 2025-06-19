@@ -160,7 +160,7 @@ export default function Home() {
         <SlideIn delay={100} direction="up">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <FadeIn delay={700}>
-              <Link href="/dashboard">
+              <Link href="/analyze">
                 <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-blue-200 dark:hover:border-blue-700">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <CardHeader className="pb-2 relative">
@@ -187,7 +187,7 @@ export default function Home() {
             </FadeIn>
 
             <FadeIn delay={800}>
-              <Link href="/analytics">
+              <Link href="/analyze">
                 <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-green-200 dark:hover:border-green-700">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <CardHeader className="pb-2 relative">
