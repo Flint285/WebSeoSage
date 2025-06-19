@@ -33,7 +33,7 @@ export function InteractiveChart({
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const visibleData = data.filter(item => !hiddenItems.has(item.name));
-  const maxValue = Math.max(...visibleData.map(d => d.value));
+  const maxValue = visibleData.length > 0 ? Math.max(...visibleData.map(d => d.value)) : 0;
 
   const toggleItem = (name: string) => {
     const newHidden = new Set(hiddenItems);

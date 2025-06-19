@@ -80,7 +80,15 @@ export function EnhancedCard({
             {url && (
               <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
                 <ExternalLink className="h-3 w-3 mr-1" />
-                <span className="truncate">{new URL(url).hostname}</span>
+                <span className="truncate">
+                  {(() => {
+                    try {
+                      return new URL(url).hostname;
+                    } catch {
+                      return url;
+                    }
+                  })()}
+                </span>
               </div>
             )}
           </div>

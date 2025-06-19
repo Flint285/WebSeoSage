@@ -1447,6 +1447,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/competitors/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      if (isNaN(competitorId)) {
+        return res.status(400).json({ message: "Invalid competitor ID" });
+      }
       const userId = req.user.claims.sub;
       
       // Get competitor to verify user owns the associated website
@@ -1471,6 +1474,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/competitors/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      if (isNaN(competitorId)) {
+        return res.status(400).json({ message: "Invalid competitor ID" });
+      }
       const userId = req.user.claims.sub;
       
       // Get competitor to verify user owns the associated website
@@ -1500,6 +1506,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/competitors/:id", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      if (isNaN(competitorId)) {
+        return res.status(400).json({ message: "Invalid competitor ID" });
+      }
       const userId = req.user.claims.sub;
       
       // Get competitor to verify user owns the associated website
