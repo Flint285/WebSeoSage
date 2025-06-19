@@ -1082,6 +1082,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/websites/:id/history", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
       
@@ -1102,8 +1105,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/websites/:id/analyses", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      if (req.query.limit && isNaN(limit)) {
+        return res.status(400).json({ message: "Invalid limit parameter" });
+      }
       
       // Verify user owns this website
       const website = await storage.getWebsite(id);
@@ -1122,6 +1131,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/websites/:id/schedule", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       const { scanFrequency, nextScanAt } = req.body;
       
@@ -1151,6 +1163,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/websites/:id/backlinks", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      if (isNaN(websiteId)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       
       // Verify user owns this website
@@ -1169,6 +1184,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/websites/:id/backlinks/stats", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      if (isNaN(websiteId)) {
+        return res.status(400).json({ message: "Invalid website ID" });
+      }
       const userId = req.user.claims.sub;
       
       // Verify user owns this website
