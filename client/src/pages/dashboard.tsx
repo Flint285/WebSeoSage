@@ -53,6 +53,17 @@ export default function Dashboard() {
       });
     },
     onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Analysis Failed",
         description: error.message || "Failed to analyze website. Please try again.",
