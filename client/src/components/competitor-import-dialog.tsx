@@ -91,6 +91,8 @@ export function CompetitorImportDialog({ website, children }: CompetitorImportDi
     const lines = bulkCompetitors.split('\n').filter(line => line.trim());
     const competitorPromises = lines.map(line => {
       const parts = line.split(',').map(part => part.trim());
+      if (parts.length === 0 || !parts[0]) return null;
+      
       const url = parts[0];
       const competitorData = {
         competitorUrl: url.startsWith('http') ? url : `https://${url}`,
@@ -103,7 +105,8 @@ export function CompetitorImportDialog({ website, children }: CompetitorImportDi
     });
 
     try {
-      await Promise.all(competitorPromises);
+      const validPromises = competitorPromises.filter(promise => promise !== null);
+      await Promise.all(validPromises);
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'competitors'] });
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'competitor-analysis'] });
       toast({

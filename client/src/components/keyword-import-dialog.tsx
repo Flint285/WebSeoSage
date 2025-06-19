@@ -84,11 +84,13 @@ export function KeywordImportDialog({ website }: KeywordImportDialogProps) {
     const lines = bulkKeywords.split('\n').filter(line => line.trim());
     const keywordPromises = lines.map(line => {
       const parts = line.split(',').map(part => part.trim());
+      if (parts.length === 0 || !parts[0]) return null;
+      
       const keywordData = {
         keyword: parts[0],
-        searchVolume: parts[1] ? parseInt(parts[1]) : null,
-        difficulty: parts[2] ? parseInt(parts[2]) : null,
-        cpc: parts[3] ? parseFloat(parts[3]) : null,
+        searchVolume: parts[1] ? parseInt(parts[1]) || null : null,
+        difficulty: parts[2] ? parseInt(parts[2]) || null : null,
+        cpc: parts[3] ? parseFloat(parts[3]) || null : null,
         intent: parts[4] || null,
       };
       
@@ -96,7 +98,8 @@ export function KeywordImportDialog({ website }: KeywordImportDialogProps) {
     });
 
     try {
-      await Promise.all(keywordPromises);
+      const validPromises = keywordPromises.filter(promise => promise !== null);
+      await Promise.all(validPromises);
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'keywords'] });
       queryClient.invalidateQueries({ queryKey: ['/api/websites', website.id, 'keywords', 'stats'] });
       toast({
