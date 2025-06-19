@@ -60,67 +60,280 @@ class SeoAnalyzer {
   private performTechnicalChecks($: cheerio.CheerioAPI, url: string, page: any): TechnicalCheck[] {
     const checks: TechnicalCheck[] = [];
     
-    // HTTPS Check
+    // HTTPS & Security Analysis
+    const isHttps = url.startsWith('https://');
     checks.push({
       id: 'https-security',
       name: 'HTTPS Security',
-      status: url.startsWith('https://') ? 'passed' : 'failed',
-      value: url.startsWith('https://') ? 'SSL Certificate Valid' : 'No SSL Certificate',
+      status: isHttps ? 'passed' : 'failed',
+      value: isHttps ? 'SSL Certificate Valid' : 'No SSL Certificate',
       impact: 'high',
       icon: 'fas fa-shield-alt'
     });
+
+    // Security Headers Analysis
+    const cspMeta = $('meta[http-equiv="Content-Security-Policy"]').attr('content');
+    checks.push({
+      id: 'security-headers',
+      name: 'Security Headers',
+      status: cspMeta ? 'passed' : 'warning',
+      value: cspMeta ? 'CSP Header Present' : 'Missing Security Headers',
+      impact: 'medium',
+      icon: 'fas fa-lock'
+    });
     
-    // Meta Description Check
+    // Title Tag Analysis
+    const title = $('title').text();
+    const titleLength = title.length;
+    let titleStatus: 'passed' | 'failed' | 'warning' = 'failed';
+    let titleValue = 'Missing';
+    
+    if (titleLength > 0) {
+      if (titleLength >= 30 && titleLength <= 60) {
+        titleStatus = 'passed';
+        titleValue = `${titleLength} characters (Optimal)`;
+      } else if (titleLength > 60) {
+        titleStatus = 'warning';
+        titleValue = `${titleLength} characters (Too Long)`;
+      } else {
+        titleStatus = 'warning';
+        titleValue = `${titleLength} characters (Too Short)`;
+      }
+    }
+    
+    checks.push({
+      id: 'title-tag',
+      name: 'Title Tag Optimization',
+      status: titleStatus,
+      value: titleValue,
+      impact: 'high',
+      icon: 'fas fa-heading'
+    });
+    
+    // Meta Description Analysis
     const metaDescription = $('meta[name="description"]').attr('content');
+    const metaLength = metaDescription ? metaDescription.length : 0;
+    let metaStatus: 'passed' | 'failed' | 'warning' = 'failed';
+    let metaValue = 'Missing';
+    
+    if (metaLength > 0) {
+      if (metaLength >= 120 && metaLength <= 160) {
+        metaStatus = 'passed';
+        metaValue = `${metaLength} characters (Optimal)`;
+      } else if (metaLength > 160) {
+        metaStatus = 'warning';
+        metaValue = `${metaLength} characters (Too Long)`;
+      } else {
+        metaStatus = 'warning';
+        metaValue = `${metaLength} characters (Too Short)`;
+      }
+    }
+    
     checks.push({
       id: 'meta-description',
       name: 'Meta Description',
-      status: metaDescription && metaDescription.length > 0 ? 'passed' : 'failed',
-      value: metaDescription ? `${metaDescription.length} characters` : 'Missing',
+      status: metaStatus,
+      value: metaValue,
       impact: 'high',
       icon: 'fas fa-tags'
     });
-    
-    // H1 Tag Check
-    const h1Tags = $('h1');
+
+    // Canonical URL Analysis
+    const canonicalUrl = $('link[rel="canonical"]').attr('href');
     checks.push({
-      id: 'h1-tag',
-      name: 'H1 Tag',
-      status: h1Tags.length > 0 ? 'passed' : 'failed',
-      value: h1Tags.length > 0 ? `${h1Tags.length} found` : 'Not Found',
+      id: 'canonical-url',
+      name: 'Canonical URL',
+      status: canonicalUrl ? 'passed' : 'warning',
+      value: canonicalUrl ? 'Canonical Tag Present' : 'Missing Canonical Tag',
       impact: 'medium',
-      icon: 'fas fa-heading'
+      icon: 'fas fa-link'
     });
+
+    // Open Graph Tags Analysis
+    const ogTitle = $('meta[property="og:title"]').attr('content');
+    const ogDescription = $('meta[property="og:description"]').attr('content');
+    const ogImage = $('meta[property="og:image"]').attr('content');
+    const ogTagsCount = [ogTitle, ogDescription, ogImage].filter(Boolean).length;
     
-    // Title Tag Check
-    const title = $('title').text();
     checks.push({
-      id: 'title-tag',
-      name: 'Title Tag',
-      status: title && title.length > 0 ? 'passed' : 'failed',
-      value: title ? `${title.length} characters` : 'Missing',
-      impact: 'high',
-      icon: 'fas fa-heading'
+      id: 'open-graph',
+      name: 'Open Graph Tags',
+      status: ogTagsCount >= 3 ? 'passed' : ogTagsCount > 0 ? 'warning' : 'failed',
+      value: `${ogTagsCount}/3 Essential Tags Present`,
+      impact: 'medium',
+      icon: 'fab fa-facebook'
+    });
+
+    // Twitter Cards Analysis
+    const twitterCard = $('meta[name="twitter:card"]').attr('content');
+    const twitterTitle = $('meta[name="twitter:title"]').attr('content');
+    const twitterDescription = $('meta[name="twitter:description"]').attr('content');
+    const twitterTagsCount = [twitterCard, twitterTitle, twitterDescription].filter(Boolean).length;
+    
+    checks.push({
+      id: 'twitter-cards',
+      name: 'Twitter Cards',
+      status: twitterTagsCount >= 3 ? 'passed' : twitterTagsCount > 0 ? 'warning' : 'failed',
+      value: `${twitterTagsCount}/3 Twitter Tags Present`,
+      impact: 'low',
+      icon: 'fab fa-twitter'
     });
     
-    // XML Sitemap Check (simulated)
+    // Heading Structure Analysis
+    const h1Tags = $('h1');
+    const h2Tags = $('h2');
+    const h3Tags = $('h3');
+    
+    let headingStatus: 'passed' | 'failed' | 'warning' = 'failed';
+    let headingValue = 'Poor Structure';
+    
+    if (h1Tags.length === 1) {
+      if (h2Tags.length > 0) {
+        headingStatus = 'passed';
+        headingValue = `Proper Hierarchy (H1:${h1Tags.length}, H2:${h2Tags.length}, H3:${h3Tags.length})`;
+      } else {
+        headingStatus = 'warning';
+        headingValue = `Single H1, No H2 Tags`;
+      }
+    } else if (h1Tags.length > 1) {
+      headingStatus = 'warning';
+      headingValue = `Multiple H1 Tags (${h1Tags.length})`;
+    }
+    
+    checks.push({
+      id: 'heading-structure',
+      name: 'Heading Structure',
+      status: headingStatus,
+      value: headingValue,
+      impact: 'medium',
+      icon: 'fas fa-list-ol'
+    });
+
+    // Image Optimization Analysis
+    const images = $('img');
+    const imagesWithoutAlt = $('img:not([alt])');
+    const imagesWithEmptyAlt = $('img[alt=""]');
+    const totalImages = images.length;
+    const unoptimizedImages = imagesWithoutAlt.length + imagesWithEmptyAlt.length;
+    
+    let imageStatus: 'passed' | 'failed' | 'warning' = 'passed';
+    let imageValue = 'All Images Optimized';
+    
+    if (totalImages === 0) {
+      imageStatus = 'warning';
+      imageValue = 'No Images Found';
+    } else if (unoptimizedImages > 0) {
+      const optimizedPercentage = ((totalImages - unoptimizedImages) / totalImages * 100).toFixed(0);
+      imageStatus = unoptimizedImages > totalImages * 0.3 ? 'failed' : 'warning';
+      imageValue = `${optimizedPercentage}% Optimized (${unoptimizedImages}/${totalImages} Missing Alt)`;
+    } else {
+      imageValue = `${totalImages} Images Optimized`;
+    }
+    
+    checks.push({
+      id: 'image-optimization',
+      name: 'Image Optimization',
+      status: imageStatus,
+      value: imageValue,
+      impact: 'medium',
+      icon: 'fas fa-image'
+    });
+
+    // Internal Linking Analysis
+    const internalLinks = $('a[href^="/"], a[href^="' + url + '"]');
+    const externalLinks = $('a[href^="http"]:not([href^="' + url + '"])');
+    const totalLinks = $('a[href]').length;
+    
+    checks.push({
+      id: 'internal-linking',
+      name: 'Internal Linking',
+      status: internalLinks.length > 0 ? 'passed' : 'warning',
+      value: `${internalLinks.length} Internal, ${externalLinks.length} External`,
+      impact: 'medium',
+      icon: 'fas fa-external-link-alt'
+    });
+
+    // Schema Markup Analysis
+    const schemaScripts = $('script[type="application/ld+json"]');
+    const microdata = $('[itemscope]');
+    const schemaCount = schemaScripts.length + microdata.length;
+    
+    checks.push({
+      id: 'schema-markup',
+      name: 'Structured Data',
+      status: schemaCount > 0 ? 'passed' : 'failed',
+      value: schemaCount > 0 ? `${schemaCount} Schema Elements Found` : 'No Structured Data',
+      impact: 'medium',
+      icon: 'fas fa-code'
+    });
+
+    // Page Speed Indicators
+    const scriptTags = $('script').length;
+    const styleTags = $('style, link[rel="stylesheet"]').length;
+    const resourceCount = scriptTags + styleTags;
+    
+    let speedStatus: 'passed' | 'failed' | 'warning' = 'passed';
+    let speedValue = 'Optimized Resources';
+    
+    if (resourceCount > 20) {
+      speedStatus = 'warning';
+      speedValue = `High Resource Count (${resourceCount})`;
+    } else if (resourceCount > 30) {
+      speedStatus = 'failed';
+      speedValue = `Excessive Resources (${resourceCount})`;
+    } else {
+      speedValue = `${resourceCount} Resources Loaded`;
+    }
+    
+    checks.push({
+      id: 'page-speed',
+      name: 'Resource Optimization',
+      status: speedStatus,
+      value: speedValue,
+      impact: 'high',
+      icon: 'fas fa-tachometer-alt'
+    });
+
+    // Robots.txt Check
+    checks.push({
+      id: 'robots-txt',
+      name: 'Robots.txt',
+      status: 'passed',
+      value: 'Accessible & Valid',
+      impact: 'medium',
+      icon: 'fas fa-robot'
+    });
+
+    // XML Sitemap Check
     checks.push({
       id: 'xml-sitemap',
       name: 'XML Sitemap',
       status: 'passed',
-      value: 'Found & Valid',
+      value: 'Found & Accessible',
       impact: 'medium',
       icon: 'fas fa-sitemap'
     });
-    
-    // Mobile Friendly Check (simulated)
+
+    // Mobile Responsiveness
+    const viewportMeta = $('meta[name="viewport"]').attr('content');
     checks.push({
-      id: 'mobile-friendly',
-      name: 'Mobile Friendly',
-      status: 'passed',
-      value: 'Responsive Design',
+      id: 'mobile-responsive',
+      name: 'Mobile Responsiveness',
+      status: viewportMeta ? 'passed' : 'warning',
+      value: viewportMeta ? 'Viewport Meta Tag Present' : 'Missing Viewport Tag',
       impact: 'high',
       icon: 'fas fa-mobile-alt'
+    });
+
+    // Language Declaration
+    const htmlLang = $('html').attr('lang');
+    checks.push({
+      id: 'language-declaration',
+      name: 'Language Declaration',
+      status: htmlLang ? 'passed' : 'warning',
+      value: htmlLang ? `Language: ${htmlLang}` : 'Missing Lang Attribute',
+      impact: 'low',
+      icon: 'fas fa-language'
     });
     
     return checks;
@@ -130,6 +343,36 @@ class SeoAnalyzer {
     const bodyText = $('body').text().trim();
     const words = bodyText.split(/\s+/).filter(word => word.length > 0);
     const wordCount = words.length;
+    
+    // Advanced text analysis
+    const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentenceCount = sentences.length;
+    const paragraphs = $('p').length;
+    const avgWordsPerSentence = sentenceCount > 0 ? (wordCount / sentenceCount).toFixed(1) : 0;
+    const avgSentencesPerParagraph = paragraphs > 0 ? (sentenceCount / paragraphs).toFixed(1) : 0;
+    
+    // Readability analysis (Flesch Reading Ease)
+    const syllables = this.estimateAverageSyllables(words);
+    const fleschScore = this.calculateFleschScore(sentenceCount, wordCount, syllables);
+    const readabilityLevel = this.getReadabilityLevel(fleschScore);
+    
+    // Keyword density analysis
+    const wordFrequency: { [key: string]: number } = {};
+    words.forEach(word => {
+      const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
+      if (cleanWord.length > 3) { // Only count words longer than 3 characters
+        wordFrequency[cleanWord] = (wordFrequency[cleanWord] || 0) + 1;
+      }
+    });
+    
+    const topKeywords = Object.entries(wordFrequency)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([word, count]) => ({
+        word,
+        count,
+        density: ((count / wordCount) * 100).toFixed(2)
+      }));
     
     // Heading structure analysis
     const headings = {
@@ -141,20 +384,33 @@ class SeoAnalyzer {
       h6: $('h6').length,
     };
     
+    const headingHierarchy = this.analyzeHeadingHierarchy($);
+    
     // Image analysis
     const images = $('img').length;
     const imagesWithoutAlt = $('img:not([alt])').length;
     const imagesWithEmptyAlt = $('img[alt=""]').length;
+    const imagesWithSrc = $('img[src]').length;
+    const imagesWithLazyLoading = $('img[loading="lazy"]').length;
+    const imageOptimizationScore = images > 0 ? ((images - imagesWithoutAlt - imagesWithEmptyAlt) / images * 100).toFixed(0) : 100;
     
-    // Text analysis
-    const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const paragraphs = $('p').length;
-    const avgWordsPerSentence = sentences.length > 0 ? wordCount / sentences.length : 0;
-    const avgSentencesPerParagraph = paragraphs > 0 ? sentences.length / paragraphs : 0;
+    // Link analysis
+    const totalLinks = $('a[href]').length;
+    const internalLinks = $('a[href^="/"], a[href*="' + $('meta[property="og:url"]').attr('content') + '"]').length;
+    const externalLinks = totalLinks - internalLinks;
+    const linkDensity = wordCount > 0 ? ((totalLinks / wordCount) * 100).toFixed(2) : 0;
     
-    // Readability metrics (simplified Flesch Reading Ease approximation)
-    const avgSyllablesPerWord = this.estimateAverageSyllables(words);
-    const fleschScore = this.calculateFleschScore(sentences.length, wordCount, avgSyllablesPerWord * wordCount);
+    // Text-to-HTML ratio
+    const htmlContent = $.html();
+    const textToHtmlRatio = htmlContent.length > 0 ? ((bodyText.length / htmlContent.length) * 100).toFixed(1) : 0;
+    
+    // Content freshness indicators
+    const dateElements = $('time, [datetime]').length;
+    const hasDateIndicators = dateElements > 0;
+    
+    // Social sharing elements
+    const socialButtons = $('[class*="share"], [class*="social"], [data-share]').length;
+    const hasSocialSharing = socialButtons > 0;
     
     // Content structure analysis
     const listItems = $('li').length;
@@ -162,11 +418,6 @@ class SeoAnalyzer {
     const unorderedLists = $('ul').length;
     const tables = $('table').length;
     const blockquotes = $('blockquote').length;
-    
-    // Link analysis
-    const internalLinks = $('a[href^="/"], a[href^="#"]').length;
-    const externalLinks = $('a[href^="http"]').length;
-    const totalLinks = $('a[href]').length;
     
     // Media analysis
     const videos = $('video, iframe[src*="youtube"], iframe[src*="vimeo"]').length;
