@@ -158,7 +158,7 @@ export default function Home() {
 
         {/* Quick Actions */}
         <SlideIn delay={100} direction="up">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <FadeIn delay={700}>
               <Link href="/analyze">
                 <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-blue-200 dark:hover:border-blue-700">
@@ -186,27 +186,7 @@ export default function Home() {
               </Link>
             </FadeIn>
 
-            <FadeIn delay={800}>
-              <Link href="/analyze">
-                <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer group hover:scale-105 relative overflow-hidden border-2 hover:border-green-200 dark:hover:border-green-700">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <CardHeader className="pb-2 relative">
-                    <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-full group-hover:bg-green-200 dark:group-hover:bg-green-900/40 transition-colors">
-                      <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="relative">
-                    <CardTitle className="text-lg mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                      Advanced Analytics
-                    </CardTitle>
-                    <CardDescription>
-                      Comprehensive SEO insights and data visualization
-                    </CardDescription>
-                  </CardContent>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                </Card>
-              </Link>
-            </FadeIn>
+
 
             <FadeIn delay={900}>
               <Link href="/history">
