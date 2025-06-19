@@ -23,6 +23,8 @@ import { EnhancedAnalysisForm } from "@/components/ui/enhanced-analysis-form";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 import { AnalyzingProgress, PageLoader } from "@/components/loading-states";
+import { TechnicalSeoDashboard } from "@/components/technical-seo-dashboard";
+import { AdvancedContentMetrics } from "@/components/advanced-content-metrics";
 
 export default function Dashboard() {
   const [currentAnalysis, setCurrentAnalysis] = useState<SeoAnalysis | null>(null);
@@ -303,13 +305,14 @@ export default function Dashboard() {
             {/* Category Breakdown */}
             <CategoryBreakdown analysis={currentAnalysis} />
 
-            {/* Detailed Analysis Tabs */}
+            {/* Enhanced Analysis Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="technical">Technical SEO</TabsTrigger>
                 <TabsTrigger value="content">Content Analysis</TabsTrigger>
-                <TabsTrigger value="technical">Technical Checks</TabsTrigger>
-                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="recommendations">Action Plan</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="space-y-6">
@@ -318,12 +321,17 @@ export default function Dashboard() {
                 </div>
               </TabsContent>
               
-              <TabsContent value="content" className="space-y-6">
-                <ContentMetricsPanel analysis={currentAnalysis} />
+              <TabsContent value="technical" className="space-y-6">
+                <TechnicalSeoDashboard analysis={currentAnalysis} />
               </TabsContent>
               
-              <TabsContent value="technical" className="space-y-6">
+              <TabsContent value="content" className="space-y-6">
+                <AdvancedContentMetrics analysis={currentAnalysis} />
+              </TabsContent>
+              
+              <TabsContent value="performance" className="space-y-6">
                 <MetricsTable analysis={currentAnalysis} />
+                <ContentMetricsPanel analysis={currentAnalysis} />
               </TabsContent>
               
               <TabsContent value="recommendations" className="space-y-6">

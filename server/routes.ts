@@ -398,11 +398,11 @@ class SeoAnalyzer {
     const totalLinks = $('a[href]').length;
     const internalLinks = $('a[href^="/"], a[href*="' + $('meta[property="og:url"]').attr('content') + '"]').length;
     const externalLinks = totalLinks - internalLinks;
-    const linkDensity = wordCount > 0 ? ((totalLinks / wordCount) * 100).toFixed(2) : 0;
+    const linkDensity = wordCount > 0 ? ((totalLinks / wordCount) * 100).toFixed(2) : '0';
     
     // Text-to-HTML ratio
     const htmlContent = $.html();
-    const textToHtmlRatio = htmlContent.length > 0 ? ((bodyText.length / htmlContent.length) * 100).toFixed(1) : 0;
+    const textToHtmlRatio = htmlContent.length > 0 ? ((bodyText.length / htmlContent.length) * 100).toFixed(1) : '0';
     
     // Content freshness indicators
     const dateElements = $('time, [datetime]').length;
