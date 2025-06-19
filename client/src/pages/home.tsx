@@ -76,8 +76,8 @@ export default function Home() {
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                      Last scanned: {website.lastScanAt 
-                        ? new Date(website.lastScanAt).toLocaleDateString()
+                      Last scanned: {website.lastScanned 
+                        ? new Date(website.lastScanned).toLocaleDateString()
                         : "Never"
                       }
                     </p>

@@ -4,6 +4,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Navigation } from "@/components/navigation";
+import { AnalyzingProgress, PageLoader } from "@/components/loading-states";
+import { NoWebsitesState } from "@/components/empty-states";
 import { SeoAnalysisForm } from "@/components/seo-analysis-form";
 import { SeoScoreCircle } from "@/components/seo-score-circle";
 import { CategoryBreakdown } from "@/components/category-breakdown";
@@ -23,6 +26,7 @@ import { Link } from "wouter";
 export default function EnhancedDashboard() {
   const [currentAnalysis, setCurrentAnalysis] = useState<SeoAnalysis | null>(null);
   const [activeTab, setActiveTab] = useState("analyze");
+  const [analysisStep, setAnalysisStep] = useState("Loading website...");
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -41,6 +45,10 @@ export default function EnhancedDashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   const { data: websites = [] } = useQuery<Website[]>({
     queryKey: ["/api/websites"],
     enabled: isAuthenticated,
@@ -48,6 +56,23 @@ export default function EnhancedDashboard() {
 
   const analyzeMutation = useMutation({
     mutationFn: async (url: string) => {
+      // Simulate progress steps
+      const steps = [
+        "Loading website...",
+        "Analyzing technical SEO...",
+        "Evaluating content quality...",
+        "Checking performance metrics...",
+        "Assessing user experience...",
+        "Generating recommendations...",
+      ];
+      
+      for (let i = 0; i < steps.length; i++) {
+        setAnalysisStep(steps[i]);
+        if (i < steps.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      
       const response = await apiRequest("POST", "/api/analyze", { url });
       return response.json();
     },
