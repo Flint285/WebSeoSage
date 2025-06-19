@@ -424,11 +424,11 @@ class SeoAnalyzer {
     const audioElements = $('audio').length;
     
     // Meta content analysis
-    const metaDescription = $('meta[name="description"]').attr('content') || '';
+    const metaDescriptionContent = $('meta[name="description"]').attr('content') || '';
     const metaKeywords = $('meta[name="keywords"]').attr('content') || '';
     
     // Title and heading content analysis
-    const title = $('title').text();
+    const titleText = $('title').text();
     const h1Text = $('h1').map((i, el) => $(el).text()).get();
     const h2Text = $('h2').map((i, el) => $(el).text()).get();
     
@@ -458,10 +458,10 @@ class SeoAnalyzer {
       headingHierarchy: this.analyzeHeadingHierarchy($),
       
       // Readability
-      avgWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
-      avgSentencesPerParagraph: Math.round(avgSentencesPerParagraph * 10) / 10,
+      avgWordsPerSentence: Number(avgWordsPerSentence),
+      avgSentencesPerParagraph: Number(avgSentencesPerParagraph),
       fleschReadingEase: Math.round(fleschScore),
-      readabilityLevel: this.getReadabilityLevel(fleschScore),
+      readabilityLevel: readabilityLevel,
       
       // Media and images
       images: {
@@ -498,10 +498,17 @@ class SeoAnalyzer {
       
       // Meta content
       meta: {
-        title: { text: title, length: title.length },
-        description: { text: metaDescription, length: metaDescription.length },
+        title: { text: titleText, length: titleText.length },
+        description: { text: metaDescriptionContent, length: metaDescriptionContent.length },
         keywords: metaKeywords
       },
+      
+      // Advanced metrics
+      textToHtmlRatio: Number(textToHtmlRatio),
+      linkDensity: Number(linkDensity),
+      hasDateIndicators,
+      hasSocialSharing,
+      topKeywords,
       
       // Quality scores
       contentQualityScore: Math.round(contentQualityScore),
