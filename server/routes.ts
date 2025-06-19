@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { seoAnalyses } from "@shared/schema";
+import { inArray, desc } from "drizzle-orm";
 import { insertSeoAnalysisSchema, insertWebsiteSchema, type SeoIssue, type SeoRecommendation, type TechnicalCheck } from "@shared/schema";
 import { serpTracker } from "./serp-tracker";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -744,11 +747,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all analyses
-  app.get("/api/analyses", async (req, res) => {
+  // Get all analyses (protected - user-specific)
+  app.get("/api/analyses", isAuthenticated, async (req: any, res) => {
     try {
-      const analyses = await storage.getAllSeoAnalyses();
-      res.json(analyses);
+      const userId = req.user.claims.sub;
+      
+      // Get user's websites first
+      const userWebsites = await storage.getUserWebsites(userId);
+      const websiteIds = userWebsites.map(w => w.id);
+      
+      if (websiteIds.length === 0) {
+        return res.json([]);
+      }
+      
+      // Get analyses only for user's websites
+      const allAnalyses = await db
+        .select()
+        .from(seoAnalyses)
+        .where(inArray(seoAnalyses.websiteId, websiteIds))
+        .orderBy(desc(seoAnalyses.createdAt));
+      
+      res.json(allAnalyses);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch analyses" });
     }

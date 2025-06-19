@@ -5,9 +5,11 @@ interface SeoScoreCircleProps {
 }
 
 export function SeoScoreCircle({ score, size = 192, strokeWidth = 12 }: SeoScoreCircleProps) {
+  // Add null safety guards for score
+  const safeScore = Math.max(0, Math.min(100, score ?? 0));
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
+  const strokeDashoffset = circumference - (safeScore / 100) * circumference;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "#00A651"; // secondary color
@@ -41,7 +43,7 @@ export function SeoScoreCircle({ score, size = 192, strokeWidth = 12 }: SeoScore
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={getScoreColor(score)}
+          stroke={getScoreColor(safeScore)}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeDasharray={circumference}
@@ -52,11 +54,11 @@ export function SeoScoreCircle({ score, size = 192, strokeWidth = 12 }: SeoScore
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-5xl font-bold" style={{ color: getScoreColor(score) }}>
-            {score}
+          <div className="text-5xl font-bold" style={{ color: getScoreColor(safeScore) }}>
+            {safeScore}
           </div>
           <div className="text-lg font-semibold text-muted-foreground">
-            {getScoreLabel(score)}
+            {getScoreLabel(safeScore)}
           </div>
         </div>
       </div>

@@ -8,46 +8,52 @@ interface CategoryBreakdownProps {
 }
 
 export function CategoryBreakdown({ analysis }: CategoryBreakdownProps) {
+  // Add null safety guards for all score values
+  const technicalScore = analysis?.technicalScore ?? 0;
+  const contentScore = analysis?.contentScore ?? 0;
+  const performanceScore = analysis?.performanceScore ?? 0;
+  const uxScore = analysis?.uxScore ?? 0;
+
   const categories = [
     {
       name: "Technical SEO",
-      score: analysis.technicalScore,
+      score: technicalScore,
       icon: Settings,
       color: "text-secondary",
       bgColor: "bg-secondary/10",
       progressColor: "bg-secondary",
-      passed: Math.floor(analysis.technicalScore / 15),
-      issues: Math.floor((100 - analysis.technicalScore) / 15),
+      passed: Math.floor(technicalScore / 15),
+      issues: Math.floor((100 - technicalScore) / 15),
     },
     {
       name: "Content",
-      score: analysis.contentScore,
+      score: contentScore,
       icon: FileText,
       color: "text-primary",
       bgColor: "bg-primary/10",
       progressColor: "bg-primary",
-      passed: Math.floor(analysis.contentScore / 15),
-      issues: Math.floor((100 - analysis.contentScore) / 15),
+      passed: Math.floor(contentScore / 15),
+      issues: Math.floor((100 - contentScore) / 15),
     },
     {
       name: "Performance",
-      score: analysis.performanceScore,
+      score: performanceScore,
       icon: Gauge,
       color: "text-warning",
       bgColor: "bg-warning/10",
       progressColor: "bg-warning",
-      passed: Math.floor(analysis.performanceScore / 15),
-      issues: Math.floor((100 - analysis.performanceScore) / 15),
+      passed: Math.floor(performanceScore / 15),
+      issues: Math.floor((100 - performanceScore) / 15),
     },
     {
       name: "User Experience",
-      score: analysis.uxScore,
+      score: uxScore,
       icon: Users,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
       progressColor: "bg-purple-600",
-      passed: Math.floor(analysis.uxScore / 15),
-      issues: Math.floor((100 - analysis.uxScore) / 15),
+      passed: Math.floor(uxScore / 15),
+      issues: Math.floor((100 - uxScore) / 15),
     },
   ];
 
