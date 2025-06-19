@@ -189,39 +189,29 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="text-2xl font-bold text-primary flex items-center">
-                <ChartLine className="h-8 w-8 mr-2" />
-                SEO Analyzer Pro
-              </div>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/" className="text-foreground hover:text-primary font-medium">Dashboard</Link>
-              <Link href="/history" className="text-muted-foreground hover:text-primary font-medium">History</Link>
-              <a href="#" className="text-muted-foreground hover:text-primary font-medium">Keywords</a>
-              <a href="#" className="text-muted-foreground hover:text-primary font-medium">Backlinks</a>
-            </nav>
-            <div className="flex items-center space-x-4">
-              <Button className="bg-primary text-primary-foreground hover:bg-blue-700">
-                Upgrade Pro
-              </Button>
-              <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+      <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="container mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            SEO Analysis Center
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Comprehensive SEO analysis with 16+ technical checks, content insights, and actionable recommendations
+          </p>
+        </div>
+
         {/* Analysis Form */}
-        <SeoAnalysisForm 
-          onAnalyze={handleAnalyze} 
-          isLoading={analyzeMutation.isPending}
-        />
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <SeoAnalysisForm 
+              onAnalyze={handleAnalyze} 
+              isLoading={analyzeMutation.isPending}
+            />
+          </CardContent>
+        </Card>
 
         {/* Results Section */}
         {currentAnalysis && (
@@ -366,45 +356,7 @@ export default function Dashboard() {
             </Card>
           </>
         )}
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="text-2xl font-bold text-primary mb-4 flex items-center">
-                <ChartLine className="h-8 w-8 mr-2" />
-                SEO Analyzer Pro
-              </div>
-              <p className="text-muted-foreground mb-4">
-                Professional SEO analysis tool helping businesses optimize their online presence and improve search engine rankings.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Tools</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link href="/" className="hover:text-primary">SEO Analyzer</Link></li>
-                <li><Link href="/history" className="hover:text-primary">Website History</Link></li>
-                <li><Link href="/history" className="hover:text-primary">Backlink Tracker</Link></li>
-                <li><Link href="/history" className="hover:text-primary">Keyword Monitor</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Support</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><button onClick={() => toast({ title: "Documentation", description: "Visit our comprehensive guides for detailed SEO optimization tutorials." })} className="hover:text-primary text-left">Documentation</button></li>
-                <li><button onClick={() => toast({ title: "Help Center", description: "For support, contact us at support@seoanalyzer.pro" })} className="hover:text-primary text-left">Help Center</button></li>
-                <li><button onClick={() => toast({ title: "Contact Us", description: "Reach out to our team at hello@seoanalyzer.pro for any questions." })} className="hover:text-primary text-left">Contact Us</button></li>
-                <li><Link href="/history" className="hover:text-primary">API Reference</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 SEO Analyzer Pro. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      </main>
     </div>
   );
 }
