@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { 
   Shield, 
   Lock, 
@@ -181,82 +181,50 @@ export function TechnicalSeoDashboard({ analysis, className }: TechnicalSeoDashb
         </div>
       </SlideIn>
 
-      {/* Technical Analysis Tabs */}
-      <Tabs defaultValue="security" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="meta">Meta Data</TabsTrigger>
-          <TabsTrigger value="structure">Structure</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="foundation">Foundation</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="security" className="mt-6">
-          <div className="grid gap-6">
-            {renderCheckGroup(securityChecks, "Security & HTTPS", Shield, 200)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="meta" className="mt-6">
-          <div className="grid gap-6">
-            {renderCheckGroup(metaChecks, "Meta Data & Social", Globe, 200)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="structure" className="mt-6">
-          <div className="grid gap-6">
-            {renderCheckGroup(structureChecks, "Content Structure", Code, 200)}
-            
-            {/* Content Analysis Details */}
-            {contentAnalysis && (
-              <FadeIn delay={300}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Eye className="h-5 w-5" />
-                      <span>Content Analysis</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900 dark:text-blue-300">Word Count</p>
-                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {(contentAnalysis as any).wordCount?.toLocaleString() || 'N/A'}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <p className="text-sm font-medium text-green-900 dark:text-green-300">Readability</p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {(contentAnalysis as any).readabilityLevel || 'N/A'}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                        <p className="text-sm font-medium text-purple-900 dark:text-purple-300">Links Ratio</p>
-                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                          {(contentAnalysis as any).links?.internalRatio || 0}%
-                        </p>
-                      </div>
+      {/* All Technical Checks - Continuous Display */}
+      <SlideIn delay={200}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CheckCircle className="h-5 w-5" />
+              <span>All Technical SEO Checks ({totalChecks} total)</span>
+            </CardTitle>
+            <CardDescription>
+              Complete analysis of all technical SEO factors
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {technicalChecks.map((check: any, index: number) => {
+              const StatusIcon = getStatusIcon(check.status);
+              return (
+                <div key={check.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <StatusIcon className={`h-5 w-5 ${getStatusColor(check.status)}`} />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{check.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{check.value}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </FadeIn>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="performance" className="mt-6">
-          <div className="grid gap-6">
-            {renderCheckGroup(performanceChecks, "Performance & Mobile", TrendingUp, 200)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="foundation" className="mt-6">
-          <div className="grid gap-6">
-            {renderCheckGroup(technicalFoundationChecks, "Technical Foundation", Search, 200)}
-          </div>
-        </TabsContent>
-      </Tabs>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge 
+                      variant={check.impact === 'high' ? 'destructive' : check.impact === 'medium' ? 'secondary' : 'outline'}
+                      className="text-xs"
+                    >
+                      {check.impact}
+                    </Badge>
+                    <Badge 
+                      variant={check.status === 'passed' ? 'default' : check.status === 'warning' ? 'secondary' : 'destructive'}
+                      className="text-xs"
+                    >
+                      {check.status}
+                    </Badge>
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      </SlideIn>
     </div>
   );
 }
