@@ -765,14 +765,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get website by ID
-  app.get("/api/websites/:id", async (req, res) => {
+  // Get website by ID (protected)
+  app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const website = await storage.getWebsite(id);
       
       if (!website) {
         return res.status(404).json({ message: "Website not found" });
+      }
+      
+      // Verify user owns this website
+      if (website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
       }
       
       res.json(website);
@@ -781,11 +787,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get website history
-  app.get("/api/websites/:id/history", async (req, res) => {
+  // Get website history (protected)
+  app.get("/api/websites/:id/history", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 30;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(id);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const history = await storage.getWebsiteHistory(id, limit);
       res.json(history);
@@ -794,11 +807,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get website analyses
-  app.get("/api/websites/:id/analyses", async (req, res) => {
+  // Get website analyses (protected)
+  app.get("/api/websites/:id/analyses", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(id);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const analyses = await storage.getWebsiteAnalyses(id, limit);
       res.json(analyses);
@@ -807,11 +827,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update website schedule
-  app.patch("/api/websites/:id/schedule", async (req, res) => {
+  // Update website schedule (protected)
+  app.patch("/api/websites/:id/schedule", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       const { scanFrequency, nextScanAt } = req.body;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(id);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const updatedWebsite = await storage.updateWebsite(id, {
         scanFrequency,
