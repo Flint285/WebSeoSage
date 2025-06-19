@@ -112,7 +112,13 @@ export class CsvExporter {
       });
     }
 
-    const domain = new URL(analysis.url).hostname;
+    const domain = (() => {
+      try {
+        return new URL(analysis.url).hostname;
+      } catch {
+        return 'website';
+      }
+    })();
     this.downloadCsv(csvContent, `${domain}-detailed-analysis-${analysis.id}.csv`);
   }
 

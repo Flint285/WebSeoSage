@@ -193,7 +193,14 @@ export class PdfGenerator {
     }
 
     // Save the PDF
-    const fileName = `seo-report-${new URL(analysis.url).hostname}-${new Date().toISOString().split('T')[0]}.pdf`;
+    const domain = (() => {
+      try {
+        return new URL(analysis.url).hostname;
+      } catch {
+        return 'website';
+      }
+    })();
+    const fileName = `seo-report-${domain}-${new Date().toISOString().split('T')[0]}.pdf`;
     pdf.save(fileName);
   }
 
@@ -262,7 +269,14 @@ export class PdfGenerator {
         heightLeft -= pageHeight;
       }
       
-      const fileName = `seo-report-${new URL(analysis.url).hostname}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const domain = (() => {
+        try {
+          return new URL(analysis.url).hostname;
+        } catch {
+          return 'website';
+        }
+      })();
+      const fileName = `seo-report-${domain}-${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(fileName);
       
     } finally {

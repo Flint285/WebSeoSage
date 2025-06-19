@@ -321,7 +321,13 @@ export class DatabaseStorage implements IStorage {
     
     // Get unique domains
     const uniqueDomains = new Set(
-      backlinkData.map(b => new URL(b.sourceUrl).hostname)
+      backlinkData.map(b => {
+        try {
+          return new URL(b.sourceUrl).hostname;
+        } catch {
+          return b.sourceUrl;
+        }
+      })
     ).size;
 
     // Calculate average domain authority
@@ -671,7 +677,13 @@ export class DatabaseStorage implements IStorage {
       .map(analysis => ({
         url: analysis.url,
         score: analysis.overallScore,
-        domain: new URL(analysis.url).hostname
+        domain: (() => {
+          try {
+            return new URL(analysis.url).hostname;
+          } catch {
+            return analysis.url;
+          }
+        })()
       }));
 
     // Issue breakdown based on real analysis data

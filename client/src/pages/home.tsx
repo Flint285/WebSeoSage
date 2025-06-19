@@ -126,7 +126,13 @@ export default function Home() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-                        {new URL(website.url).hostname}
+                        {(() => {
+                          try {
+                            return new URL(website.url).hostname;
+                          } catch {
+                            return website.url;
+                          }
+                        })()}
                       </h3>
                       <div className="flex items-center space-x-2">
                         <StatusIndicator 
