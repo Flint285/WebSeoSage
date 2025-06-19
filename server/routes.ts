@@ -40,13 +40,20 @@ class SeoAnalyzer {
       const content = await page.content();
       const $ = cheerio.load(content);
       
-      // Perform comprehensive SEO analysis
+      // Perform comprehensive SEO analysis with enhanced checks
+      const technicalChecks = this.performTechnicalChecks($, url, page);
+      const contentAnalysis = this.analyzeContent($);
+      const performanceMetrics = { loadTime };
+      const uxAnalysis = this.analyzeUserExperience($, page);
+      
       const analysis = {
-        technicalChecks: this.performTechnicalChecks($, url, page),
-        contentAnalysis: this.analyzeContent($),
-        performanceMetrics: { loadTime },
-        uxAnalysis: this.analyzeUserExperience($, page)
+        technicalChecks,
+        contentAnalysis,
+        performanceMetrics,
+        uxAnalysis
       };
+      
+      console.log(`Enhanced Analysis: ${technicalChecks.length} technical checks performed`);
       
       await browser.close();
       return this.generateReport(url, analysis);
