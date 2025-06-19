@@ -1007,8 +1007,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       
       // Get keyword to verify user owns it through website
-      const keywords = await storage.getKeywords(0); // Will need to verify ownership through website
-      const keyword = keywords.find(k => k.id === keywordId);
+      const keyword = await storage.getKeyword(keywordId);
       if (!keyword) {
         return res.status(404).json({ message: "Keyword not found" });
       }
@@ -1031,10 +1030,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SERP Tracking endpoints
-  app.post("/api/websites/:id/track-rankings", async (req, res) => {
+  // SERP Tracking endpoints (protected)
+  app.post("/api/websites/:id/track-rankings", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const results = await serpTracker.trackKeywordsForWebsite(websiteId);
       res.json(results);
@@ -1044,9 +1050,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/keywords/:id/track", async (req, res) => {
+  app.post("/api/keywords/:id/track", isAuthenticated, async (req: any, res) => {
     try {
       const keywordId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Get keyword to verify user owns it through website
+      const keyword = await storage.getKeyword(keywordId);
+      if (!keyword) {
+        return res.status(404).json({ message: "Keyword not found" });
+      }
+      
+      // Verify user owns the website this keyword belongs to
+      const website = await storage.getWebsite(keyword.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
       const result = await serpTracker.trackSingleKeyword(keywordId);
       res.json(result);
@@ -1056,10 +1075,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Competitor analysis endpoints
-  app.get("/api/websites/:id/competitors", async (req, res) => {
+  // Competitor analysis endpoints (protected)
+  app.get("/api/websites/:id/competitors", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const competitors = await storage.getCompetitors(websiteId);
       res.json(competitors);
     } catch (error) {
@@ -1067,9 +1094,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/websites/:id/competitors", async (req, res) => {
+  app.post("/api/websites/:id/competitors", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const competitorData = {
         ...req.body,
         websiteId,
@@ -1082,9 +1117,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/websites/:id/competitor-analysis", async (req, res) => {
+  app.get("/api/websites/:id/competitor-analysis", isAuthenticated, async (req: any, res) => {
     try {
       const websiteId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Verify user owns this website
+      const website = await storage.getWebsite(websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const analysis = await storage.analyzeCompetitorGaps(websiteId);
       res.json(analysis);
     } catch (error) {
@@ -1092,9 +1135,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/competitors/:id/keywords", async (req, res) => {
+  app.get("/api/competitors/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Get competitor to verify user owns the associated website
+      const competitor = await storage.getCompetitor(competitorId);
+      if (!competitor) {
+        return res.status(404).json({ message: "Competitor not found" });
+      }
+      
+      // Verify user owns the website this competitor belongs to
+      const website = await storage.getWebsite(competitor.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const keywords = await storage.getCompetitorKeywords(competitorId);
       res.json(keywords);
     } catch (error) {
@@ -1102,9 +1159,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/competitors/:id/keywords", async (req, res) => {
+  app.post("/api/competitors/:id/keywords", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Get competitor to verify user owns the associated website
+      const competitor = await storage.getCompetitor(competitorId);
+      if (!competitor) {
+        return res.status(404).json({ message: "Competitor not found" });
+      }
+      
+      // Verify user owns the website this competitor belongs to
+      const website = await storage.getWebsite(competitor.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const keywordData = {
         ...req.body,
         competitorId,
@@ -1117,9 +1188,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/competitors/:id", async (req, res) => {
+  app.delete("/api/competitors/:id", isAuthenticated, async (req: any, res) => {
     try {
       const competitorId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Get competitor to verify user owns the associated website
+      const competitor = await storage.getCompetitor(competitorId);
+      if (!competitor) {
+        return res.status(404).json({ message: "Competitor not found" });
+      }
+      
+      // Verify user owns the website this competitor belongs to
+      const website = await storage.getWebsite(competitor.websiteId);
+      if (!website || website.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const success = await storage.deleteCompetitor(competitorId);
       res.json({ success });
     } catch (error) {
