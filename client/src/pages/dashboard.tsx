@@ -13,7 +13,7 @@ import { ContentMetricsPanel } from "@/components/content-metrics-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { CheckCircle, XCircle, Shield, Calendar, Download, Share, ChartLine } from "lucide-react";
 import type { SeoAnalysis } from "@shared/schema";
 import { PdfGenerator } from "@/lib/pdf-generator";
@@ -295,41 +295,35 @@ export default function Dashboard() {
             {/* Category Breakdown */}
             <CategoryBreakdown analysis={currentAnalysis} />
 
-            {/* Enhanced Analysis Tabs */}
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="technical">Technical SEO</TabsTrigger>
-                <TabsTrigger value="content">Content Analysis</TabsTrigger>
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-                <TabsTrigger value="recommendations">Action Plan</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="overview" className="space-y-6">
-                <div id="issues-section">
-                  <IssuesRecommendations analysis={currentAnalysis} />
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="technical" className="space-y-6">
+            {/* Comprehensive Analysis Results */}
+            <div className="space-y-8">
+              {/* Technical SEO Results */}
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-6">Technical SEO Analysis</h2>
                 <TechnicalSeoDashboard analysis={currentAnalysis} />
-              </TabsContent>
+              </div>
               
-              <TabsContent value="content" className="space-y-6">
+              {/* Content Analysis Results */}
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-6">Content Analysis</h2>
                 <AdvancedContentMetrics analysis={currentAnalysis} />
-              </TabsContent>
+              </div>
               
-              <TabsContent value="performance" className="space-y-6">
-                <MetricsTable analysis={currentAnalysis} />
-                <ContentMetricsPanel analysis={currentAnalysis} />
-              </TabsContent>
-              
-              <TabsContent value="recommendations" className="space-y-6">
-                <div id="recommendations-section">
-                  <IssuesRecommendations analysis={currentAnalysis} />
+              {/* Performance & Metrics */}
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-6">Performance Metrics</h2>
+                <div className="space-y-6">
+                  <MetricsTable analysis={currentAnalysis} />
+                  <ContentMetricsPanel analysis={currentAnalysis} />
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+              
+              {/* Issues & Recommendations */}
+              <div id="issues-section">
+                <h2 className="text-2xl font-bold text-foreground mb-6">Issues & Recommendations</h2>
+                <IssuesRecommendations analysis={currentAnalysis} />
+              </div>
+            </div>
 
             {/* Export Section */}
             <Card className="p-8">
