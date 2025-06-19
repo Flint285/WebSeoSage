@@ -26,10 +26,10 @@ export function Navigation() {
   };
 
   const navItems = [
-    { href: "/dashboard", label: "Analysis", icon: Search, active: location === "/dashboard" },
-    { href: "/analytics", label: "Analytics", icon: BarChart3, active: location === "/analytics" },
-    { href: "/history", label: "Keywords", icon: TrendingUp, active: location === "/history" },
-    { href: "/history", label: "Competitors", icon: Globe, active: false },
+    { href: "/dashboard", label: "Analysis", icon: Search, active: location === "/dashboard", id: "analysis" },
+    { href: "/analytics", label: "Analytics", icon: BarChart3, active: location === "/analytics", id: "analytics" },
+    { href: "/history", label: "Keywords", icon: TrendingUp, active: location === "/history", id: "keywords" },
+    { href: "/history", label: "Competitors", icon: Globe, active: false, id: "competitors" },
   ];
 
   return (
@@ -47,7 +47,7 @@ export function Navigation() {
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>
+              <Link key={item.id} href={item.href}>
                 <Button
                   variant={item.active ? "default" : "ghost"}
                   size="sm"
@@ -84,7 +84,7 @@ export function Navigation() {
                 {/* Mobile Navigation */}
                 <div className="md:hidden">
                   {navItems.map((item) => (
-                    <Link key={item.href} href={item.href}>
+                    <Link key={`mobile-${item.id}`} href={item.href}>
                       <DropdownMenuItem className="flex items-center space-x-2">
                         <item.icon className="h-4 w-4" />
                         <span>{item.label}</span>
