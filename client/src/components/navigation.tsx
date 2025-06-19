@@ -26,10 +26,7 @@ export function Navigation() {
   };
 
   const navItems = [
-    { href: "/dashboard", label: "Analysis", icon: Search, active: location === "/dashboard", id: "analysis" },
-    { href: "/analytics", label: "Analytics", icon: BarChart3, active: location === "/analytics", id: "analytics" },
-    { href: "/history", label: "Keywords", icon: TrendingUp, active: location === "/history", id: "keywords" },
-    { href: "/history", label: "Competitors", icon: Globe, active: false, id: "competitors" },
+    { href: "/analyze", label: "SEO Analysis", icon: Search, active: location === "/analyze", id: "analysis" },
   ];
 
   return (
