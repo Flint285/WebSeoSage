@@ -11,6 +11,12 @@ import { storage } from "./storage";
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
+if (!process.env.REPL_ID) {
+  throw new Error("Environment variable REPL_ID not provided");
+}
+if (!process.env.SESSION_SECRET) {
+  throw new Error("Environment variable SESSION_SECRET not provided");
+}
 
 const getOidcConfig = memoize(
   async () => {

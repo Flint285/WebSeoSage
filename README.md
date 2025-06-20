@@ -13,11 +13,14 @@ WebSeoSage is a full‑stack SEO analysis platform. It combines an Express API w
 - Node.js 20+
 - PostgreSQL database
 
-Set the following environment variables:
+Set the following environment variables (all required unless noted):
 - `DATABASE_URL` – PostgreSQL connection string
-- `SESSION_SECRET` – session cookie secret
-- `REPLIT_DOMAINS` and `REPL_ID` – Replit authentication configuration
+- `SESSION_SECRET` – session cookie secret used for Express sessions
+- `REPLIT_DOMAINS` – comma‑separated allowed domains for Replit auth
+- `REPL_ID` – your Replit application ID
 - Optional: `ISSUER_URL` to override the default OpenID issuer
+
+The server will fail to start if `SESSION_SECRET`, `REPLIT_DOMAINS` or `REPL_ID` are not provided.
 
 ## Development
 Install dependencies and run the dev server:
