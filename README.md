@@ -18,6 +18,7 @@ Set the following environment variables:
 - `SESSION_SECRET` – session cookie secret
 - `REPLIT_DOMAINS` and `REPL_ID` – Replit authentication configuration
 - Optional: `ISSUER_URL` to override the default OpenID issuer
+- Optional: `PUPPETEER_EXECUTABLE_PATH` to specify the Chromium/Chrome binary used by Puppeteer
 
 ## Development
 Install dependencies, verify the TypeScript setup, and run the dev server:
