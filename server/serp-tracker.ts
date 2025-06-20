@@ -1,36 +1,7 @@
-import puppeteer, { Browser, Page } from 'puppeteer';
 import { storage } from './storage';
 import type { Keyword } from '@shared/schema';
 
 export class SerpTracker {
-  private browser: Browser | null = null;
-
-  async initBrowser() {
-    if (!this.browser) {
-      this.browser = await puppeteer.launch({
-        headless: true,
-        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ]
-      });
-    }
-    return this.browser;
-  }
-
-  async closeBrowser() {
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
-    }
-  }
 
   async checkKeywordPosition(keyword: string, targetDomain: string, location = 'global', device = 'desktop'): Promise<{
     position: number | null;
@@ -223,26 +194,7 @@ export class SerpTracker {
     }
   }
 
-  // Clean up resources
-  async cleanup() {
-    await this.closeBrowser();
-  }
 }
 
 // Export singleton instance
 export const serpTracker = new SerpTracker();
-
-// Cleanup on process exit
-process.on('exit', () => {
-  serpTracker.cleanup();
-});
-
-process.on('SIGINT', () => {
-  serpTracker.cleanup();
-  process.exit();
-});
-
-process.on('SIGTERM', () => {
-  serpTracker.cleanup();
-  process.exit();
-});

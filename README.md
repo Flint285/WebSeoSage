@@ -5,7 +5,7 @@ WebSeoSage is a full‑stack SEO analysis platform. It combines an Express API w
 ## Features
 - **Comprehensive SEO scans** with Puppeteer and Cheerio
 - **Backlink and keyword tracking** with historical score storage
-- **Real‑time SERP monitoring** and competitor gap analysis
+- **Real‑time SERP monitoring** with simulated rankings and competitor gap analysis
 - **User authentication** via Replit OpenID Connect
 - **Interactive dashboard** built with React, Radix UI and Tailwind CSS
 
