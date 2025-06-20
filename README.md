@@ -20,9 +20,10 @@ Set the following environment variables:
 - Optional: `ISSUER_URL` to override the default OpenID issuer
 
 ## Development
-Install dependencies and run the dev server:
+Install dependencies, verify the TypeScript setup, and run the dev server:
 ```bash
 npm install
+npm run check
 npm run dev
 ```
 The backend runs on port 5000 and serves the React client via Vite middleware.
