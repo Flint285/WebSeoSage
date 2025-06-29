@@ -62,25 +62,25 @@ export function CategoryBreakdown({ analysis }: CategoryBreakdownProps) {
       {categories.map((category) => {
         const IconComponent = category.icon;
         return (
-          <Card key={category.name} className="hover:shadow-md transition-shadow">
+          <Card key={category.name} className="hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:border-blue-200 dark:hover:border-blue-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 ${category.bgColor} rounded-lg flex items-center justify-center`}>
+                  <div className={`w-10 h-10 ${category.bgColor} rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110`}>
                     <IconComponent className={`h-5 w-5 ${category.color}`} />
                   </div>
                   <h3 className="font-semibold text-foreground">{category.name}</h3>
                 </div>
-                <span className={`text-2xl font-bold ${category.color}`}>
+                <span className={`text-2xl font-bold ${category.color} transition-all duration-200`}>
                   {category.score}
                 </span>
               </div>
               <div className="mb-4">
-                <Progress value={category.score} className="h-2" />
+                <Progress value={category.score} className="h-3 transition-all duration-300" />
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-secondary">{category.passed} passed</span>
-                <span className="text-error">{category.issues} issues</span>
+                <span className="text-green-600 dark:text-green-400 font-medium">{category.passed} passed</span>
+                <span className="text-red-600 dark:text-red-400 font-medium">{category.issues} issues</span>
               </div>
             </CardContent>
           </Card>

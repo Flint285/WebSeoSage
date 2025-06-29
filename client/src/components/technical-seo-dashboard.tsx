@@ -109,17 +109,25 @@ export function TechnicalSeoDashboard({ analysis, className }: TechnicalSeoDashb
             {checks.map((check, index) => {
               const StatusIcon = getStatusIcon(check.status);
               return (
-                <div key={check.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                <div key={check.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 border border-transparent hover:border-gray-200 dark:hover:border-gray-600">
                   <div className="flex items-center space-x-3">
-                    <StatusIcon className={`h-4 w-4 ${getStatusColor(check.status)}`} />
+                    <div className="relative">
+                      <StatusIcon className={`h-4 w-4 ${getStatusColor(check.status)}`} />
+                      {check.status === 'passed' && (
+                        <div className="absolute -inset-1 bg-green-100 dark:bg-green-900/20 rounded-full opacity-20"></div>
+                      )}
+                      {check.status === 'failed' && (
+                        <div className="absolute -inset-1 bg-red-100 dark:bg-red-900/20 rounded-full opacity-20"></div>
+                      )}
+                    </div>
                     <div>
-                      <p className="font-medium text-sm">{check.name}</p>
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">{check.name}</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">{check.value}</p>
                     </div>
                   </div>
                   <Badge 
                     variant={check.impact === 'high' ? 'destructive' : check.impact === 'medium' ? 'secondary' : 'outline'}
-                    className="text-xs"
+                    className="text-xs capitalize"
                   >
                     {check.impact}
                   </Badge>
