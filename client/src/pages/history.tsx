@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WebsiteHistoryPanel } from "@/components/website-history-panel";
+import { Navigation } from "@/components/navigation";
 import { ChartLine, Clock, Globe, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import type { Website } from "@shared/schema";
@@ -17,30 +18,25 @@ export default function History() {
 
   if (selectedWebsite) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setSelectedWebsite(null)}
-                  className="text-primary hover:text-primary/80"
-                >
-                  ← Back to Websites
-                </Button>
-              </div>
-              <div className="text-2xl font-bold text-primary flex items-center">
-                <ChartLine className="h-8 w-8 mr-2" />
-                SEO History
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+        <Navigation />
+        
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedWebsite(null)}
+              className="mb-4"
+            >
+              ← Back to Websites
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {selectedWebsite.url} - SEO History
+            </h1>
           </div>
-        </header>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          
           <WebsiteHistoryPanel website={selectedWebsite} />
-        </div>
+        </main>
       </div>
     );
   }
