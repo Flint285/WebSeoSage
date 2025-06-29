@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -141,7 +142,8 @@ export default function AdvancedReporting() {
   };
 
   const getTrendIcon = (change: number) => {
-    return change > 0 ? TrendingUp : TrendingDown;
+    const IconComponent = change > 0 ? TrendingUp : TrendingDown;
+    return IconComponent;
   };
 
   const getPriorityColor = (priority: string) => {
@@ -342,7 +344,7 @@ export default function AdvancedReporting() {
                                 {category.currentScore}
                               </span>
                               <div className="flex items-center text-sm">
-                                {getTrendIcon(category.change)({ 
+                                {React.createElement(getTrendIcon(category.change), { 
                                   className: `h-4 w-4 ${category.change > 0 ? 'text-green-500' : 'text-red-500'}` 
                                 })}
                                 <span className={category.change > 0 ? "text-green-500" : "text-red-500"}>
@@ -388,7 +390,7 @@ export default function AdvancedReporting() {
                               {website.score}
                             </p>
                             <div className="flex items-center text-sm">
-                              {getTrendIcon(website.change)({ 
+                              {React.createElement(getTrendIcon(website.change), { 
                                 className: `h-4 w-4 ${website.change > 0 ? 'text-green-500' : 'text-red-500'}` 
                               })}
                               <span className={website.change > 0 ? "text-green-500" : "text-red-500"}>
