@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, BarChart3, TrendingUp, Globe, LogOut, User, Settings, History } from "lucide-react";
+import { Search, BarChart3, TrendingUp, Globe, LogOut, User, Settings, History, FileText } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -28,6 +28,7 @@ export function Navigation() {
   const navItems = [
     { href: "/analyze", label: "SEO Analysis", icon: Search, active: location === "/analyze", id: "analysis" },
     { href: "/history", label: "Scan History", icon: History, active: location === "/history", id: "history" },
+    { href: "/advanced-reporting", label: "Advanced Reports", icon: FileText, active: location === "/advanced-reporting", id: "reporting" },
   ];
 
   return (
