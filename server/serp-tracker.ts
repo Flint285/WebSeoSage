@@ -102,7 +102,19 @@ export class SerpTracker {
     let errors = 0;
 
     // Extract domain from website URL
-    const targetDomain = new URL(website.url).hostname;
+    let targetDomain;
+    try {
+      targetDomain = new URL(website.url).hostname;
+    } catch (error) {
+      console.error(`Invalid website URL: ${website.url}`);
+      return {
+        success: false,
+        message: 'Invalid website URL format',
+        results: [],
+        tracked: 0,
+        errors: 1
+      };
+    }
 
     for (const keyword of keywords) {
       try {
@@ -187,7 +199,18 @@ export class SerpTracker {
         };
       }
 
-      const targetDomain = new URL(website.url).hostname;
+      let targetDomain;
+      try {
+        targetDomain = new URL(website.url).hostname;
+      } catch (error) {
+        console.error(`Invalid website URL: ${website.url}`);
+        return {
+          success: false,
+          position: null,
+          url: null,
+          error: 'Invalid website URL format'
+        };
+      }
       
       const result = await this.checkKeywordPosition(
         keyword.keyword,
