@@ -22,7 +22,7 @@ import { Navigation } from "@/components/navigation";
 
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { StatusIndicator } from "@/components/ui/status-indicator";
-import { AnalyzingProgress, PageLoader } from "@/components/loading-states";
+import { AnalysisLoader, PageLoader } from "@/components/loading-states";
 import { TechnicalSeoDashboard } from "@/components/technical-seo-dashboard";
 import { AdvancedContentMetrics } from "@/components/advanced-content-metrics";
 
@@ -213,8 +213,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
+        {/* Loading State */}
+        {analyzeMutation.isPending && (
+          <div className="mb-8">
+            <AnalysisLoader url={analyzeMutation.variables as string} />
+          </div>
+        )}
+
         {/* Results Section */}
-        {currentAnalysis && (
+        {currentAnalysis && !analyzeMutation.isPending && (
           <>
             {/* Overall Score Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">

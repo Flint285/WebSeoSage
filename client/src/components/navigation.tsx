@@ -35,8 +35,11 @@ export function Navigation() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center space-x-2 cursor-pointer">
-              <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-200">
+              <div className="relative">
+                <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="absolute inset-0 bg-blue-600 dark:bg-blue-400 rounded-full opacity-0 hover:opacity-10 transition-opacity duration-200"></div>
+              </div>
               <span className="text-2xl font-bold text-gray-900 dark:text-white">SEO Analyzer</span>
             </div>
           </Link>
@@ -48,7 +51,7 @@ export function Navigation() {
                 <Button
                   variant={item.active ? "default" : "ghost"}
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:scale-105"
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.label}</span>
