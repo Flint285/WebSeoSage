@@ -3,6 +3,90 @@ import html2canvas from 'html2canvas';
 import type { SeoAnalysis } from '@shared/schema';
 
 export class PdfGenerator {
+  static async generateAdvancedReport(reportingData: any, options: any): Promise<void> {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let yPosition = 20;
+    
+    // Report Header
+    pdf.setFontSize(24);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Advanced SEO Analytics Report', 20, yPosition);
+    yPosition += 15;
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Report Period: ${options.period}`, 20, yPosition);
+    yPosition += 8;
+    pdf.text(`Report Type: ${options.type}`, 20, yPosition);
+    yPosition += 8;
+    pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPosition);
+    yPosition += 20;
+    
+    // Executive Summary
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Executive Summary', 20, yPosition);
+    yPosition += 15;
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    const summaryData = [
+      [`Average SEO Score:`, `${reportingData.overallPerformance.averageScore}/100`],
+      [`Total Websites:`, `${reportingData.overallPerformance.totalWebsites}`],
+      [`Total Analyses:`, `${reportingData.overallPerformance.totalAnalyses}`],
+      [`Performance Change:`, `${reportingData.overallPerformance.scoreChange > 0 ? '+' : ''}${reportingData.overallPerformance.scoreChange}%`]
+    ];
+    
+    summaryData.forEach(([label, value]) => {
+      pdf.text(label, 20, yPosition);
+      pdf.text(value, 80, yPosition);
+      yPosition += 8;
+    });
+    
+    yPosition += 10;
+    
+    // Category Performance
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Category Performance', 20, yPosition);
+    yPosition += 15;
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    reportingData.categoryBreakdown.forEach((category: any) => {
+      pdf.text(`${category.category}:`, 20, yPosition);
+      pdf.text(`${category.currentScore}/100`, 80, yPosition);
+      pdf.text(`(${category.change > 0 ? '+' : ''}${category.change}%)`, 120, yPosition);
+      yPosition += 8;
+    });
+    
+    // New page for action items
+    pdf.addPage();
+    yPosition = 20;
+    
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Strategic Action Items', 20, yPosition);
+    yPosition += 15;
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    reportingData.actionItems.slice(0, 10).forEach((action: any, index: number) => {
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${index + 1}. ${action.description}`, 20, yPosition);
+      yPosition += 8;
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Priority: ${action.priority} | Impact: ${action.impact} | Effort: ${action.effort}`, 25, yPosition);
+      yPosition += 6;
+      pdf.text(`Category: ${action.category}`, 25, yPosition);
+      yPosition += 12;
+    });
+    
+    pdf.save(`seo-analytics-report-${new Date().getTime()}.pdf`);
+  }
+
   static async generateSeoReport(analysis: SeoAnalysis): Promise<void> {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
