@@ -849,7 +849,7 @@ class SeoAnalyzer {
     const failedChecks = analysis.technicalChecks.filter((c: TechnicalCheck) => c.status === 'failed').length;
     const totalChecks = analysis.technicalChecks.length;
     
-    const technicalScore = Math.round((passedChecks / totalChecks) * 100);
+    const technicalScore = totalChecks > 0 ? Math.round((passedChecks / totalChecks) * 100) : 0;
     const contentScore = analysis.contentAnalysis.contentQualityScore || 50;
     const performanceScore = Math.max(50, Math.min(100, 100 - (analysis.performanceMetrics.loadTime - 1) * 20));
     const uxScore = Math.max(70, Math.min(100, 80 + analysis.uxAnalysis.internalLinks * 2));

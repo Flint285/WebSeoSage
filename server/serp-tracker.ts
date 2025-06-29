@@ -81,6 +81,8 @@ export class SerpTracker {
   }
 
   async trackKeywordsForWebsite(websiteId: number): Promise<{
+    success?: boolean;
+    message?: string;
     tracked: number;
     errors: number;
     results: Array<{
@@ -108,8 +110,6 @@ export class SerpTracker {
     } catch (error) {
       console.error(`Invalid website URL: ${website.url}`);
       return {
-        success: false,
-        message: 'Invalid website URL format',
         results: [],
         tracked: 0,
         errors: 1
