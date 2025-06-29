@@ -42,34 +42,17 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/">
-                <Button variant="ghost" className="text-primary hover:text-primary/80">
-                  ← Back to Dashboard
-                </Button>
-              </Link>
-              <div className="text-2xl font-bold text-primary flex items-center">
-                <ChartLine className="h-8 w-8 mr-2" />
-                SEO History & Tracking
-              </div>
-            </div>
-            <Button className="bg-primary text-primary-foreground hover:bg-blue-700">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              View Analytics
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+      <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Website Performance Tracking</h1>
-          <p className="text-muted-foreground text-lg">
-            Monitor SEO score changes over time and track improvement progress for all analyzed websites.
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-center">
+            <ChartLine className="h-10 w-10 mr-3 text-blue-600" />
+            Scan History
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            View detailed history and trends for all your analyzed websites
           </p>
         </div>
 
@@ -149,7 +132,7 @@ export default function History() {
             </CardContent>
           </Card>
         )}
-      </div>
+      </main>
     </div>
   );
 }
